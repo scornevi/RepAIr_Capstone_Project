@@ -49,3 +49,15 @@ print(df.head())
 phones_df = df[df["Category"] == "Phone"]
 print(phones_df.head(50))
 # %%
+# Fetch all guides
+response = requests.get("https://www.ifixit.com/api/2.0/guides")
+data = response.json()
+# Print the structure of the response to understand it
+print(type(data))  # Check if it's a list or dictionary
+print(data[:2])  # Print the first two elements to inspect the format
+# Extract titles if it's a list
+if isinstance(data, list):
+    for guide in data[:200]:  # Get the first 10 guides
+        print(guide.get("title", "No title found"))
+else:
+    print("Unexpected API response format.")
