@@ -1,4 +1,5 @@
 # %%
+
 # General
 from dotenv import load_dotenv
 import os
@@ -64,24 +65,43 @@ def create_embedding_vector_db(chunks #, db_name, target_directory=f"../vector_d
         documents=chunks,
         embedding=embedding
     )
-    return vector_db # will it work wihtout saving?
+    return vector_db # optimize
 
-# Function to query the vector database and interact with Groq
+#Function to query the vector database and interact with Groq
 def query_vector_db(query, vector_db):
     # Retrieve relevant documents
-    docs = vector_db.similarity_search(query, k=3)
+    docs = vector_db.similarity_search(query, k=3) # neigbors k are the chunks # similarity_search: FAISS function
     context = "\n".join([doc.page_content for doc in docs])
 
     # Interact with Groq API
     chat_completion = client.chat.completions.create(
         messages=[
-            {"role": "system", "content": f"Use the following context:\n{context}"},
+            {"role": "system",
+             "content": f"Use the following context:\n{context}"},
             {"role": "user", "content": query},
         ],
         model="llama3-8b-8192",
         temperature=0 # optional: check best value!
     )
     return chat_completion.choices[0].message.content
+
+def rewrite_query(user_input):
+    """
+    Uses the LLM to transform user input into a structured query for better iFixit searches.
+    """
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {"role": "system",
+             "content": """Rewrite the following user query into a structured format, 
+             ensuring it includes the device type, model, and specific repair issue."""},
+            {"role": "user", "content": user_input},
+        ],
+        model="llama3-8b-8192",
+        temperature=0
+    )
+    return chat_completion.choices[0].message.content
+
+#%%
 
 #%%
 # Streamlit app
@@ -100,8 +120,15 @@ st.write("Cool! Embeddings Generated successfully!")
 
 # User query input
 user_query = st.text_input("What would you like to repair?")
+
 if user_query:
-    response = query_vector_db(user_query, vector_db)
+    # 🔹 Use LLM to rewrite query
+    optimized_query = rewrite_query(user_query)
+   # st.write(f"Optimized Query: {optimized_query}")
+
+    # 🔹 Perform FAISS search with the optimized query
+    response = query_vector_db(optimized_query, vector_db)
+    
     st.write("Response from LLM:")
     st.write(response)
 
