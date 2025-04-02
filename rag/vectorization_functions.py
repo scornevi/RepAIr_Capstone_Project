@@ -1,43 +1,10 @@
-# %%
-
+# vectorization functions
+#%%
 # General
-from dotenv import load_dotenv
-import os
-from langchain_community.document_loaders import IFixitLoader
-# Langchain
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain.chains.retrieval import create_retrieval_chain
-from langchain import hub
-from langchain.prompts.prompt import PromptTemplate
-import streamlit as st
 
-# two similar but different methods
-from groq import Groq # direct groq call
-
-import warnings
-warnings.filterwarnings("ignore")
-
-#%%
-load_dotenv()
-
-# %%
-# credentials API key
-groq_key = os.getenv('GROQ_API_KEY')
-# USER_AGENT = os.getenv("USER_AGENT")
-
-# for this test
-client = Groq(api_key=groq_key)
-llm = client # we use this as llm here
-
-# %%
-# retrieve data
-data = IFixitLoader.load_suggestions("iPhone 6", doc_type = 'guide')
-
-#%%
-# functions
 def split_documents(documents, chunk_size=800, chunk_overlap=80): # check chunk size and overlap for our purpose
     """
     this function splits documents into chunks of given size and overlap
@@ -93,42 +60,12 @@ def rewrite_query(user_input):
         messages=[
             {"role": "system",
              "content": """Rewrite the following user query into a structured format, 
-             ensuring it includes the device type, model, and specific repair issue."""},
+             ensuring it includes the device type, model, and specific repair issue. 
+             Return greetings when appropriate and ask questions to get information on 
+             type, model, and specific repair issue from user."""},
             {"role": "user", "content": user_input},
         ],
         model="llama3-8b-8192",
         temperature=0
     )
     return chat_completion.choices[0].message.content
-
-#%%
-
-#%%
-# Streamlit app
-st.title("Fix it! llama3-8b-8192")
-
-# Extract text
-text = data
-
-# Chunk text
-chunks = split_documents(text)
-st.write("Cool! Text Chunked Successfully!")
-
-# Generate embeddings and store in FAISS
-vector_db = create_embedding_vector_db(chunks )
-st.write("Cool! Embeddings Generated successfully!")
-
-# User query input
-user_query = st.text_input("What would you like to repair?")
-
-if user_query:
-    # 🔹 Use LLM to rewrite query
-    optimized_query = rewrite_query(user_query)
-   # st.write(f"Optimized Query: {optimized_query}")
-
-    # 🔹 Perform FAISS search with the optimized query
-    response = query_vector_db(optimized_query, vector_db)
-    
-    st.write("Response from LLM:")
-    st.write(response)
-
