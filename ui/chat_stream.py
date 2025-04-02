@@ -1,6 +1,6 @@
 #%% 
 # processing functions
-from rag.vectorization_functions import split_documents, create_embedding_vector_db, rewrite_query, query_vector_db
+from rag.vectorization_functions import split_documents, create_embedding_vector_db, query_vector_db
 # lead ifixit infos
 from rag.ifixit_document_retrieval import load_ifixit_guides
 #model
