@@ -43,6 +43,7 @@ for category, subcategories in categories_json.items():
 
 df = pd.DataFrame(categories_list, columns=["Category", "Subcategory", "Device"])
 
+
 df[df["Subcategory"=="Phone"]]
 
 #%%
@@ -61,6 +62,7 @@ with open(root_dir + "/data/ifixit_device_categories/devices.json", "w") as f:
 # %%
 phones_df = df[df["Category"] == "Phone"]
 print(phones_df.head(50))
+
 
 # list all categories
 print(df.Category.unique())
@@ -179,4 +181,3 @@ def plot_pie_charts(df):
 # Call the function to plot pie charts
 plot_pie_charts(df)
 # %%
-
