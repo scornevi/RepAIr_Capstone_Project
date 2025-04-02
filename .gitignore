@@ -131,8 +131,9 @@ dmypy.json
 
 data/*.csv
 models/*.sav
-mlruns
 models/*
 
-#config file has sensitive data
-.mlflow_uri
+# our personal play spaces
+playground/*
+!playground/.gitkeep
+
