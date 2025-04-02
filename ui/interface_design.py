@@ -1,5 +1,6 @@
 # interface
 import gradio as gr
+from ui.chat_stream import chatbot_interface
 
 def interface_init():
     with gr.Blocks() as app:

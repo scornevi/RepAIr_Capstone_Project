@@ -11,7 +11,6 @@ from ui.interface_design import interface_init
 
 
 def main():
-    client = llm_base_client_init()
     interface_init()
 
 
