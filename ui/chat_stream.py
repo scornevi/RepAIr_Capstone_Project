@@ -29,14 +29,14 @@ def chatbot_interface(history, user_query):
             {"role": "user", "content": user_query},
         ],
         model="llama3-8b-8192",
-        temperature=0
+        temperature=0.3
     )
-    needs_repair_assistance = "yes" in chat_completion.choices[0].message.content.lower()
+    needs_repair_assistance = "yes" in user_query.lower()
     
     if not needs_repair_assistance:
         return history + [(user_query, chat_completion.choices[0].message.content)]   
     
-    data = load_ifixit_guides("iPhone 6 Screen Replacement")
+    data = load_ifixit_guides(user_query, debug=True)
     chunks = split_documents(data)
     vector_db = create_embedding_vector_db(chunks)
     

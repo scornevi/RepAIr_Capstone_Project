@@ -1,8 +1,5 @@
 #%%
 
-# get client
-from helper_functions.llm_base_client import llm_base_client_init
-
 # import checkpoint message
 from helper_functions.checkpoint import checkpoint
 

@@ -13,13 +13,16 @@ def write_searchphrase(search_info: str, debug: bool = False):
     
     chat_completion = client.chat.completions.create(
         messages=[
-            {"role": "system",
+           {"role": "system",
              "content": """Rewrite the following info into a structured searchphrase for iFixit, 
-             ensuring it includes the device type, model, broken part. Do not include any other words or comments."""},
+             ensuring it includes in this order the device name, model and part that needs to be repaired. 
+             Return only the searchphrase, do not include any other words or comments.
+             Capitalize the first letter of each word.
+             The searchphrase should be a single sentence."""},
             {"role": "user", "content": search_info},
         ],
         model="llama3-8b-8192",
-        temperature=0
+        temperature=0.1
     )
     search_phrase = chat_completion.choices[0].message.content
     if debug == True:
