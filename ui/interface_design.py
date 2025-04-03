@@ -1,18 +1,3 @@
-# interface
-# import gradio as gr
-# from ui.chat_stream import chatbot_interface
-
-# def interface_init():
-#     with gr.Blocks() as app:
-#         gr.Markdown("# 🔧 Fix it! LLaMA3-8B-8192 Chatbot")
-#         chatbot = gr.Chatbot()
-#         user_input = gr.Textbox(placeholder="What would you like to repair?")
-#         submit_btn = gr.Button("Submit")
-        
-#         submit_btn.click(chatbot_interface, [chatbot, user_input], chatbot)
-#         user_input.submit(chatbot_interface, [chatbot, user_input], chatbot)
-    
-#     app.queue().launch()
 
 #%%
 
@@ -25,11 +10,8 @@ from ui.chat_stream import chatbot_interface, feedback_positive, feedback_negati
 from ui.custom_css import custom_css
 
 def interface_init():
-    #logo_path = os.path("images/logo.png")
-    #root_dir = os.path.abspath(os.path.join(__file__, ".."))  # Correcting this to one level up from the script
-    #logo_path = os.path.join(root_dir, "images", "logo.png")
-    script_dir = os.path.dirname(__file__)  # Directory of the script
-    image_path = os.path.join(script_dir, "images", "image.jpg")
+   
+    logo_path = "./images/logo.png"
 
     # Gradio UI
     with gr.Blocks() as app:
