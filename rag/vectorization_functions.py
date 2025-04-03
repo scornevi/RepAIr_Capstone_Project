@@ -51,21 +51,3 @@ def query_vector_db(query, vector_db):
         temperature=0 # optional: check best value!
     )
     return chat_completion.choices[0].message.content
-
-def rewrite_query(user_input):
-    """
-    Uses the LLM to transform user input into a structured query for better iFixit searches.
-    """
-    chat_completion = client.chat.completions.create(
-        messages=[
-            {"role": "system",
-             "content": """Rewrite the following user query into a structured format, 
-             ensuring it includes the device type, model, and specific repair issue. 
-             Return greetings when appropriate and ask questions to get information on 
-             type, model, and specific repair issue from user."""},
-            {"role": "user", "content": user_input},
-        ],
-        model="llama3-8b-8192",
-        temperature=0
-    )
-    return chat_completion.choices[0].message.content
