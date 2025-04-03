@@ -41,3 +41,25 @@ def chatbot_interface(history, user_query):
     vector_db = create_embedding_vector_db(chunks)
     
     return history + [(user_query, query_vector_db(user_query, vector_db))]
+
+# Not implemented yet:
+def answer_style(history, user_query, response_type):
+    response = f"Suggested repair steps for: {user_query}\n\n"
+    if response_type == "Simple Language":
+        response += "Please provide a clear and easy-to-understand explanation."
+    elif response_type == "Technical":
+        response += "Provide a detailed technical breakdown of the repair process."
+    
+    history.append((user_query, response))  # Append to chat history
+    return history
+
+
+# Feedback function for thumbs up (chat ends with success message)
+def feedback_positive(history):
+    history.append((None, "🎉 Great! We're happy to hear that your repair was successful! If you need help in the future, feel free to ask."))
+    return history
+
+# Feedback function for thumbs down (chat continues)
+def feedback_negative(history):
+    history.append((None, "I'm sorry to hear that. Could you describe the issue further? Maybe we can find another solution."))
+    return history
