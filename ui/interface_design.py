@@ -6,7 +6,7 @@
 
 import gradio as gr
 import os
-from ui.chat_stream import chatbot_interface, feedback_positive, feedback_negative
+from ui.chat_stream import chatbot_interface #, feedback_positive, feedback_negative
 from ui.custom_css import custom_css
 
 def interface_init():
@@ -33,7 +33,7 @@ def interface_init():
         submit_btn = gr.Button("Submit", elem_classes="submit-button")
 
         submit_btn.click(chatbot_interface, [chatbot, user_input], chatbot)
-        user_input.submit(chatbot_interface, [chatbot, user_input], chatbot)
+        #user_input.submit(chatbot_interface, [chatbot, user_input], chatbot)
 
         # Response style selection
         response_type = gr.Radio(["Simple Language", "Technical"], label="Answer Style")
@@ -53,10 +53,10 @@ def interface_init():
         #submit_button.click(fn=repair_assistant, inputs=[chat_history, question, response_type], outputs=chatbot)
 
         # Connect thumbs up to success message (stops chat)
-        thumbs_up.click(fn=feedback_positive, inputs=[chat_history], outputs=chatbot)
+        #thumbs_up.click(fn=feedback_positive, inputs=[chat_history], outputs=chatbot)
 
         # Connect thumbs down to continue troubleshooting
-        thumbs_down.click(fn=feedback_negative, inputs=[chat_history], outputs=chatbot)
+       # thumbs_down.click(fn=feedback_negative, inputs=[chat_history], outputs=chatbot)
     app.queue().launch()
 
 # %%
