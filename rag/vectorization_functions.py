@@ -41,15 +41,17 @@ def query_vector_db(query, vector_db):
     docs = vector_db.similarity_search(query, k=3) # neigbors k are the chunks # similarity_search: FAISS function
     context = "\n".join([doc.page_content for doc in docs])
 
-    client = llm_base_client_init() 
-    # Interact with Groq API
-    chat_completion = client.chat.completions.create(
-        messages=[
-            {"role": "system",
-             "content": f"List repair steps for the Problem. Use the following context:\n{context}"},
-            {"role": "user", "content": query},
-        ],
-        model="llama3-8b-8192",
-        temperature=0.3 # optional: check best value!
-    )
-    return chat_completion.choices[0].message.content
+    return context
+
+    # client = llm_base_client_init() 
+    # # Interact with Groq API
+    # chat_completion = client.chat.completions.create(
+    #     messages=[
+    #         {"role": "system",
+    #          "content": f"List repair steps for the Problem. Use the following context:\n{context}"},
+    #         {"role": "user", "content": query},
+    #     ],
+    #     model="llama3-8b-8192",
+    #     temperature=0.3 # optional: check best value!
+    # )
+    # return chat_completion.choices[0].message.content
