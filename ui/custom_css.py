@@ -25,6 +25,9 @@ def custom_css():
             gap: 10px;
             margin-top: 5px;
         }
+        .gradio-container {
+            background-color: #74BA9C !important;
+        }
     </style>
     """
     return custom_css
