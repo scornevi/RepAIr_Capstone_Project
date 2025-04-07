@@ -11,7 +11,7 @@ from chat_logic.prompts import load_prompts
 def chatbot_answer(user_query, memory=None,  context="", prompt="default", response_type=None, modelname="llama3-8b-8192", temp=0.3):
     """ 
 
-    Gererate a response from the model based on the user's query and chat history.
+    Generate a response from the model based on the user's query and chat history.
     Can be used for both the first query and follow-up questions by using different prompts.
 
     Args:
