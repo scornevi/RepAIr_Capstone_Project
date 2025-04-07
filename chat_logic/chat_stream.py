@@ -5,23 +5,70 @@ from rag.vectorization_functions import split_documents, create_embedding_vector
 from rag.ifixit_document_retrieval import load_ifixit_guides
 #model
 from helper_functions.llm_base_client import llm_base_client_init
-from chat_logic.prompts import load_prompts
 
-def chatbot_answer(user_query, context="", prompt="default", modelname="llama3-8b-8192", temp=0.3):
+
+def chatbot_interface(history, user_query):
     """ 
 
     LLM Model is defined here.
     Chat history use and chat with user coded here.
     
     """
+    
+    if not user_query.strip():
+        return history + [(user_query, "Hey, I'd love to help you! What can I do for you?")]
+    
+    messages = [{"role": "system",
+              "content":  """You are a helpful assistant 
+              that helps users with the repair of their devices. Ask them if they need help with a repair.
+              If they do, ask them to provide the device name and model."""}]
+    
+    if history:
+        for user_msg, bot_msg in history:
+            messages.append({"role": "user", "content": user_msg})
+            messages.append({"role": "assistant", "content": bot_msg})
+    messages.append({"role": "user", "content": user_query})
+    print(messages)
+
+    client = llm_base_client_init()
+
+    chat_completion = client.chat.completions.create(
+        messages=messages,
+        model="llama3-8b-8192",
+        temperature=0.3
+    )
+
+    return history + [(user_query, chat_completion.choices[0].message.content)]  
+
+#%% 
+# processing functions
+from rag.vectorization_functions import split_documents, create_embedding_vector_db, query_vector_db
+# lead ifixit infos
+from rag.ifixit_document_retrieval import load_ifixit_guides
+#model
+from helper_functions.llm_base_client import llm_base_client_init
+from chat_logic.prompts import load_prompts
+
+def chatbot_answer(user_query, memory=None,  context="", prompt="default", modelname="llama3-8b-8192", temp=0.3):
+    """ 
+
+    Chat history use and chat with user coded here.
+    
+    """
     client = llm_base_client_init()
     answer_prompt = load_prompts(prompt, context)
+    messages = [{"role": "system",
+              "content": answer_prompt}]
+    
+    if memory:
+        for user_msg, bot_msg in memory:
+            messages.append({"role": "user", "content": user_msg})
+            messages.append({"role": "assistant", "content": bot_msg})
+    messages.append({"role": "user", "content": user_query})
+
+    # calling the LLM with the entire chat history in order to get an answer
     chat_completion = client.chat.completions.create(
-        messages=[
-            {"role": "system",
-              "content": answer_prompt},
-            {"role": "user", "content": user_query},
-        ],
+        messages=messages,
         model=modelname,
         temperature=temp
     )
@@ -43,14 +90,14 @@ def chatbot_interface(history, user_query):
         global vector_db
         vector_db = create_embedding_vector_db(chunks)
         context = query_vector_db(user_query, vector_db)
-        message_content = chatbot_answer(user_query, context, prompt="repair_guide")
+        message_content = chatbot_answer(user_query, history, context, prompt="repair_guide")
         answer = history + [(user_query, message_content.choices[0].message.content)]
         return answer
     
     # answer questions to the guide 
     else: 
         context = query_vector_db(user_query, vector_db)
-        message_content = chatbot_answer(user_query, context, prompt="repair_helper")
+        message_content = chatbot_answer(user_query, history, context, prompt="repair_helper")
         answer = history + [(user_query, message_content.choices[0].message.content)]
         return answer
 

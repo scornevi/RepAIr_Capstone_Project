@@ -53,10 +53,10 @@ def interface_init():
         #submit_button.click(fn=repair_assistant, inputs=[chat_history, question, response_type], outputs=chatbot)
 
         # Connect thumbs up to success message (stops chat)
-        thumbs_up.click(fn=feedback_positive, inputs=[chat_history], outputs=chatbot)
+        #thumbs_up.click(fn=feedback_positive, inputs=[chat_history], outputs=chatbot)
 
         # Connect thumbs down to continue troubleshooting
-        thumbs_down.click(fn=feedback_negative, inputs=[chat_history], outputs=chatbot)
+       # thumbs_down.click(fn=feedback_negative, inputs=[chat_history], outputs=chatbot)
     app.queue().launch()
 
 # %%
