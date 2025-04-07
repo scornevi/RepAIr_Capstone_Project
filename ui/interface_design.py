@@ -5,7 +5,7 @@
 #NEW
 
 import gradio as gr
-from chat_logic.chat_stream import chatbot_interface, feedback_positive, feedback_negative, answer_style
+from chat_logic.chat_stream import chatbot_interface, feedback_positive, feedback_negative
 from ui.custom_css import custom_css
 
 
@@ -31,7 +31,7 @@ def interface_init():
         chat_history = gr.State([])
         chatbot = gr.Chatbot()
         user_input = gr.Textbox(placeholder="What would you like to repair? Please name make, model and problem.")
-        response_type = gr.Radio(["Simple Language", "Technical", "Homer Simpson Language"], label="Answer Style")
+        response_type = gr.Radio(["Simple Language", "Technical", "Homer Simpson Language", "Sarcasm"], label="Answer Style")
         submit_btn = gr.Button("Submit", elem_classes="submit-button")
 
 
