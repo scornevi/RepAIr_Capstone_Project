@@ -33,7 +33,7 @@ def interface_init():
         submit_btn = gr.Button("Submit", elem_classes="submit-button")
 
         submit_btn.click(chatbot_interface, [chatbot, user_input], chatbot)
-        #user_input.submit(chatbot_interface, [chatbot, user_input], chatbot)
+        user_input.submit(chatbot_interface, [chatbot, user_input], chatbot)
 
         # Response style selection
         response_type = gr.Radio(["Simple Language", "Technical"], label="Answer Style")
