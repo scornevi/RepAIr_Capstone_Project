@@ -6,7 +6,7 @@
 
 import gradio as gr
 import os
-from ui.chat_stream import chatbot_interface #, feedback_positive, feedback_negative
+from chat_logic.chat_stream import chatbot_interface, feedback_positive, feedback_negative
 from ui.custom_css import custom_css
 
 def interface_init():
