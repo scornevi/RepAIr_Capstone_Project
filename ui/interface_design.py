@@ -6,6 +6,10 @@ from chat_logic.chat_stream import chatbot_interface, feedback_positive, feedbac
 from ui.custom_css import custom_css
 
 def interface_init():
+    """
+    Initialize the Gradio interface for the Repair Assistant chatbot.
+
+    """
    
     logo_path = "./images/logo.png"
 
@@ -35,9 +39,10 @@ def interface_init():
             thumbs_down = gr.Button("👎 No")
 
         # Connect thumbs up to success message (stops chat)
-        #thumbs_up.click(fn=feedback_positive, inputs=[chat_history], outputs=chatbot)
+        thumbs_up.click(fn=feedback_positive, inputs=[chat_history], outputs=chatbot)
 
         # Connect thumbs down to continue troubleshooting
-        # thumbs_down.click(fn=feedback_negative, inputs=[chat_history], outputs=chatbot)
+        thumbs_down.click(fn=feedback_negative, inputs=[chat_history], outputs=chatbot)
+        
     app.queue().launch()
 

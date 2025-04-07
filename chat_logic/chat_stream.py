@@ -11,7 +11,8 @@ from chat_logic.prompts import load_prompts
 def chatbot_answer(user_query, memory=None,  context="", prompt="default", response_type=None, modelname="llama3-8b-8192", temp=0.3):
     """ 
 
-    Chat history use and chat with user coded here.
+    Gererate a response from the model based on the user's query and chat history.
+    Can be used for both the first query and follow-up questions by using different prompts.
 
     Args:
         user_query (str): The user's query.
@@ -49,8 +50,8 @@ def chatbot_answer(user_query, memory=None,  context="", prompt="default", respo
 def chatbot_interface(history, user_query, response_type=None):
     """ 
 
-    LLM Model is defined here.
-    Chat history use and chat with user coded here.
+    UI uses this function to handle general chat functionality. 
+    Order of operations is also defined here.
 
     Args:
         history (list): The chat history.

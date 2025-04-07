@@ -8,6 +8,9 @@ def write_searchphrase(search_info: str, debug: bool = False):
 
     Args:
         search_info (str): The information to be turned into a searchphrase.
+
+    Returns:
+        str: The rewritten searchphrase.
     """
     client = llm_base_client_init()
     

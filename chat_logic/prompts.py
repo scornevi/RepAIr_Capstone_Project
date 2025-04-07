@@ -28,7 +28,7 @@ def load_prompts(prompt, context="", response_type=None):
     if response_type is None:
         response_type = ""
 
-    # choose prompt
+    # choose prompt and append response_type
     if prompt == "default":
         prompt = ("""You are a helpful assistant that helps users with the repair of their devices.
                   Ask them if they need help with a repair.

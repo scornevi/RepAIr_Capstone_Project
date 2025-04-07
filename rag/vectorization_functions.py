@@ -8,7 +8,15 @@ from helper_functions.llm_base_client import llm_base_client_init
 
 def split_documents(documents, chunk_size=800, chunk_overlap=80): # check chunk size and overlap for our purpose
     """
-    this function splits documents into chunks of given size and overlap
+    This function splits documents into chunks of given size and overlap.
+
+    Args:
+        documents (list): List of documents to be split.
+        chunk_size (int): Size of each chunk.
+        chunk_overlap (int): Overlap between chunks.
+    
+    Returns:    
+        list: List of text chunks.
     """
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
@@ -17,12 +25,17 @@ def split_documents(documents, chunk_size=800, chunk_overlap=80): # check chunk 
     chunks = text_splitter.split_documents(documents=documents)
     return chunks
 
-def create_embedding_vector_db(chunks #, db_name, target_directory=f"../vector_databases"
-                               ):
+def create_embedding_vector_db(chunks):
     """
-    this function uses the open-source embedding model HuggingFaceEmbeddings 
+    Uses the open-source embedding model HuggingFaceEmbeddings 
     to create embeddings and store those in a vector database called FAISS, 
     which allows for efficient similarity search
+
+    Args:
+        chunks (list): List of text chunks to be embedded.
+    
+    Returns:
+        vector_db: The vector database containing the embedded chunks.
     """
     # instantiate embedding model
     embedding = HuggingFaceEmbeddings(
@@ -35,23 +48,22 @@ def create_embedding_vector_db(chunks #, db_name, target_directory=f"../vector_d
     )
     return vector_db # optimize
 
-#Function to query the vector database and interact with Groq
+# Function to query the vector database and interact with Groq
 def query_vector_db(query, vector_db):
+    """
+    This function queries the vector database with the user query and retrieves relevant documents
+
+    Args:
+        query (str): The user query.
+        vector_db: The vector database to query.
+    
+    Returns:
+        str: The context retrieved from the vector database.
+
+    """
     # Retrieve relevant documents
     docs = vector_db.similarity_search(query, k=3) # neigbors k are the chunks # similarity_search: FAISS function
     context = "\n".join([doc.page_content for doc in docs])
 
     return context
 
-    # client = llm_base_client_init() 
-    # # Interact with Groq API
-    # chat_completion = client.chat.completions.create(
-    #     messages=[
-    #         {"role": "system",
-    #          "content": f"List repair steps for the Problem. Use the following context:\n{context}"},
-    #         {"role": "user", "content": query},
-    #     ],
-    #     model="llama3-8b-8192",
-    #     temperature=0.3 # optional: check best value!
-    # )
-    # return chat_completion.choices[0].message.content
