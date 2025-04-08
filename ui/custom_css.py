@@ -1,5 +1,12 @@
+# Load a custom CSS for Gradio interface
 
 def custom_css():
+    """
+    Custom CSS for Gradio interface to style buttons, chat container, and background.
+
+    Returns:
+        str: Custom CSS styles.
+    """
     custom_css = """
     <style>
         .submit-button {
@@ -24,6 +31,9 @@ def custom_css():
             display: flex;
             gap: 10px;
             margin-top: 5px;
+        }
+        .gradio-container {
+            background-color: #74BA9C !important;
         }
     </style>
     """

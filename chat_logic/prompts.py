@@ -1,20 +1,47 @@
-def load_prompts(prompt, context=""):
+def load_prompts(prompt, context="", response_type=None):
     """
     Load the prompts from a file or define them in the code.
 
-    """
-    # You can load these prompts
+    Args:
+        prompt (str): The prompt to load.
+        context (str): The context to use in the prompt.
+        response_type (str): The style of language the answer should use.
 
+    Returns: 
+        str: The loaded prompt.
+
+    """
+ 
+    # choose response_type
+    if response_type == "Simple Language":
+        response_type = "Use plain language and explain so that a 5th grader would understand."
+
+    if response_type == "Technical":
+        response_type = "Use technical jargon and provide detailed explanations."
+
+    if response_type == "Homer Simpson Language":
+        response_type = "Use simple language and explain it like Homer Simpson would."
+    
+    if response_type == "Sarcasm":
+        response_type = "Use sarcastic language and tone."
+    
+    if response_type is None:
+        response_type = ""
+
+    # choose prompt and append response_type
     if prompt == "default":
-        return """You are a helpful assistant that helps users with the repair of their devices.
+        prompt = ("""You are a helpful assistant that helps users with the repair of their devices.
                   Ask them if they need help with a repair.
-                  If they do, ask them to provide the device name and model."""
+                  If they do, ask them to provide the device name and model. """ + response_type)
     
     if prompt == "repair_guide":
-        return (f"List repair steps for the Problem. Use the following context:\n{context}")
+        prompt = (f"List repair steps for the Problem. Use the following context:\n{context}. " + response_type)
     
     if prompt == "repair_helper":
-        return (f"Answer the users question about the guide. Use the following context:\n{context}")
+        prompt = (f"Answer the users question about the guide. Use the following context:\n{context}. " + response_type)
+
+    return prompt
+
    
     
     
