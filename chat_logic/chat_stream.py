@@ -46,8 +46,36 @@ def chatbot_answer(user_query, memory=None,  context="", prompt="default", respo
     )
     return chat_completion
 
+def chatbot_answer_init(user_query, vector_db, history, response_type, prompt):
+    """
+    Generate the answer for the answer for the query.
 
-def chatbot_interface(history, user_query, response_type=None):
+    Args:
+        user_query (str): The user's query.
+        vector_db: The vector database to query.
+        history (list): The chat history.
+        response_type (str): The style of language the answer should use.
+        prompt (str): The prompt to load.
+    returns:
+        answer (list): The model's response added to the chat history.
+    """
+    context = query_vector_db(user_query, vector_db)
+    message_content = chatbot_answer(user_query, history, context, response_type, prompt)
+    answer = history + [(user_query, message_content.choices[0].message.content)]
+    return answer
+
+def chatbot_rag_init(user_query):
+    """
+    Create the vector database for the first query.
+    This function loads the guides, splits them into chunks, and creates the embedding vector database.
+    """
+    
+    data = load_ifixit_guides(user_query, debug=True)
+    chunks = split_documents(data)
+    vector_db = create_embedding_vector_db(chunks)
+    return vector_db
+
+def chatbot_interface(history, user_query, response_type):
     """ 
 
     UI uses this function to handle general chat functionality. 
@@ -65,21 +93,14 @@ def chatbot_interface(history, user_query, response_type=None):
 
     # load guides, create embeddings and return answer for first query
     if len(history) == 0:
-        data = load_ifixit_guides(user_query, debug=True)
-        chunks = split_documents(data)
-        global vector_db
-        vector_db = create_embedding_vector_db(chunks)
-        context = query_vector_db(user_query, vector_db)
-        message_content = chatbot_answer(user_query, history, context, prompt="repair_guide", response_type=response_type)
-        answer = history + [(user_query, message_content.choices[0].message.content)]
-        return answer
-    
+        global vector_db 
+        vector_db = chatbot_rag_init(user_query)
+        answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="repair_guide")
     # answer questions to the guide 
     else: 
-        context = query_vector_db(user_query, vector_db)
-        message_content = chatbot_answer(user_query, history, context, prompt="repair_helper", response_type=response_type)
-        answer = history + [(user_query, message_content.choices[0].message.content)]
-        return answer
+        answer = chatbot_answer_init(user_query, vector_db, history, response_type)
+
+    return answer
                 
 # Feedback function for thumbs up (chat ends with success message)
 def feedback_positive(history):
