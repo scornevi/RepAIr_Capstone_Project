@@ -152,3 +152,52 @@ ax2.tick_params(axis='x', rotation=90)
 # Adjust layout to avoid overlap
 plt.tight_layout()
 
+# %%
+from rapidfuzz import fuzz
+
+target = "T8403c"
+threshold = 50
+
+# Flatten all values and convert to string
+all_strings = df_all_levels_clean.astype(str).values.flatten()
+
+# Let's also print similarities for debugging
+matching_strings = []
+for s in all_strings:
+    similarity = fuzz.ratio(s, target)
+    if similarity >= threshold:
+        print(f"Match found: '{s}' (similarity: {similarity}%)")
+        matching_strings.append(s)
+
+# Remove duplicates
+matching_strings = list(set(matching_strings))
+
+# Final output
+print("\nMatching strings:")
+print(matching_strings)
+
+
+
+
+
+# %%
+from rapidfuzz import fuzz
+
+target = "Miele Stoftronic T8403c"
+threshold = 60  # use 80 if you want to go back to stricter filtering
+
+# Function to check if any cell in a row is similar to the target
+def row_has_similar_cell(row):
+    for cell in row:
+        if isinstance(cell, str):
+            if fuzz.ratio(cell, target) >= threshold:
+                return True
+    return False
+
+# Filter rows
+matching_rows = df_all_levels_clean[df_all_levels_clean.apply(row_has_similar_cell, axis=1)]
+
+# Show result
+print(matching_rows)
+
+# %%
