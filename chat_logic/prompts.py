@@ -1,4 +1,4 @@
-def load_prompts(prompt, context="", response_type=None):
+def load_prompts(prompt="default", context="", response_type=None):
     """
     Load the prompts from a file or define them in the code.
 
