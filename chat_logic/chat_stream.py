@@ -104,11 +104,31 @@ def chatbot_interface(history, user_query, response_type):
     return answer
                 
 # Feedback function for thumbs up (chat ends with success message)
+# def feedback_positive(history):
+#     history.append((None, "🎉 Great! We're happy to hear that your repair was successful! If you need help in the future, feel free to ask."))
+#     return history
+
+# Feedback function for thumbs down (chat continues)
+# def feedback_negative(history):
+#     history.append((None, "I'm sorry to hear that. Could you describe the issue further? Maybe we can find another solution."))
+#     return history
+
+#NEW feedback functions:
+import time
+
+# Feedback function for thumbs up (chat ends with success message & restarts)
 def feedback_positive(history):
-    history.append((None, "🎉 Great! We're happy to hear that your repair was successful! If you need help in the future, feel free to ask."))
-    return history
+     history.append((None, "🎉 Great! We're happy to hear that your repair was successful! If you need help in the future, feel free to ask. I will automatically restart the chat."))
+     yield history # shows message
+     time.sleep(3) # short break for message to remain
+     yield[] # reset chat
 
 # Feedback function for thumbs down (chat continues)
 def feedback_negative(history):
-    history.append((None, "I'm sorry to hear that. Could you describe the issue further? Maybe we can find another solution."))
-    return history
+    history.append((None, "I'm sorry to hear that. Do you want me to create a support ticket for you so that you can seek professional help?"))
+    return history, gr.update(visible=True)
+
+# Ticket creation
+def create_ticket(history):
+
+
