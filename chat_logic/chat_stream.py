@@ -46,7 +46,7 @@ def chatbot_answer(user_query, memory=None,  context="", prompt="default", respo
     )
     return chat_completion
 
-def chatbot_answer_init(user_query, vector_db, history, response_type, prompt):
+def chatbot_answer_init(user_query, vector_db, history, response_type, prompt="repair_helper"):
     """
     Generate the answer for the answer for the query.
 
@@ -72,8 +72,8 @@ def chatbot_rag_init(user_query):
     
     data = load_ifixit_guides(user_query, debug=True)
     chunks = split_documents(data)
-    vector_db = create_embedding_vector_db(chunks)
-    return vector_db
+    vector_database = create_embedding_vector_db(chunks)
+    return vector_database
 
 def chatbot_interface(history, user_query, response_type):
     """ 
@@ -93,7 +93,8 @@ def chatbot_interface(history, user_query, response_type):
 
     # load guides, create embeddings and return answer for first query
     if len(history) == 0:
-        global vector_db 
+        global vector_db
+        vector_db = [] # reset vector database to avoid memory issues
         vector_db = chatbot_rag_init(user_query)
         answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="repair_guide")
     # answer questions to the guide 
