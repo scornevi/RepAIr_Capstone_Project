@@ -46,7 +46,7 @@ def chatbot_answer(user_query, memory=None,  context="", prompt="default", respo
     )
     return chat_completion
 
-def chatbot_answer_init(user_query, vector_db, history, response_type, prompt):
+def chatbot_answer_init(user_query, vector_db, history, response_type, prompt, modelname="llama3-8b-8192", temp=0.3):
     """
     Generate the answer for the answer for the query.
 
@@ -59,8 +59,11 @@ def chatbot_answer_init(user_query, vector_db, history, response_type, prompt):
     returns:
         answer (list): The model's response added to the chat history.
     """
-    context = query_vector_db(user_query, vector_db)
-    message_content = chatbot_answer(user_query, history, context, prompt, response_type)
+    if vector_db:
+        context = query_vector_db(user_query, vector_db)
+    else:
+        context = ""
+    message_content = chatbot_answer(user_query, history, context, prompt, response_type, modelname, temp)
     answer = history + [(user_query, message_content.choices[0].message.content)]
     return answer
 
@@ -90,18 +93,40 @@ def chatbot_interface(history, user_query, response_type):
         list: The model's response added to the chat history.
     
     """
+    global chat_state
 
-    # load guides, create embeddings and return answer for first query
+    # chat until enough information is provided to answer the question
     if len(history) == 0:
-        global vector_db
-        vector_db = [] # reset vector database to avoid memory issues
-        vector_db = chatbot_rag_init(user_query)
-        answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="repair_guide")
-    # answer questions to the guide 
-    else: 
-        answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="repair_helper")
+        chat_state = "diagnosis"
 
-    return answer
+    if chat_state == "diagnosis":
+        sum_prompt = load_prompts("summary")
+        summary_list = chatbot_answer(user_query, history, None, prompt=sum_prompt, response_type=None, modelname="llama3-8b-8192", temp=0.2)
+        summary = str(summary_list.choices[0].message.content).strip().lower()
+        print(summary)
+        check_prompt = load_prompts("check_info")
+        check_info = chatbot_answer(summary, [], None, prompt=check_prompt, response_type=None, modelname="llama3-8b-8192", temp=0.2)
+        enough_info = str(check_info.choices[0].message.content).strip().lower()
+        print(enough_info)
+        if enough_info == 'yes':
+            # load guides, create embeddings and return answer for first query
+            global vector_db
+            vector_db = [] # reset vector database to avoid memory issues
+            vector_db = chatbot_rag_init(summary)
+            answer = chatbot_answer_init(summary, vector_db, [], response_type, prompt="repair_guide")
+            chat_state = "repair"
+            return answer
+        else:
+            # ask for more information
+            answer = chatbot_answer_init(user_query, None, history, prompt="need_more_info", response_type=response_type)
+            chat_state = "diagnosis"
+            return answer
+
+    # answer questions to the guide
+    if chat_state == "repair":
+        answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="repair_helper")
+        return answer
+
                 
 # Feedback function for thumbs up (chat ends with success message)
 def feedback_positive(history):

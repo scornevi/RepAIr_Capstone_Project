@@ -35,10 +35,28 @@ def load_prompts(prompt="default", context="", response_type=None):
                   If they do, ask them to provide the device name and model. """ + response_type)
     
     if prompt == "repair_guide":
-        prompt = (f"List repair steps for the Problem. Use the following context:\n{context}. " + response_type)
+        prompt = (f"List and explain the repair steps mentioned in the guide. Use the following context:\n{context}. " + response_type)
     
     if prompt == "repair_helper":
         prompt = (f"Answer the users question about the guide. Use the following context:\n{context}. " + response_type)
+    
+    if prompt == "check_info":
+        prompt = ("""Write 'yes' if device name, model and problem description containing a faulty part are provided, otherwise return 'no'.
+                  Only return 'yes' or 'no' without any comments or explanations.
+                  """)
+        
+    if prompt == "need_more_info":
+        prompt = ("""You need to get information from the user to start a repair. For this you need the following information:
+                  Device name, model, problem description with faulty part.
+                  Ask the user to provide the missing information. 
+                  """)
+    if prompt == "summary":
+        prompt = ("""Summarize the history and user input. 
+                  It should be a short sentence that describes the problem and contains the following information:
+                  Device name, model and problem description that contains the faulty part.
+                  Only write one sentence without any comments and explanations.
+                  Always use the order: Device name, model, problem description.
+                  """)
 
     return prompt
 
