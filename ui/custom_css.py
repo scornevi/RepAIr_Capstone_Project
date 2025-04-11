@@ -7,6 +7,49 @@ def custom_css():
     """
     custom_css = """
     <style>
+        /* Overall container for Gradio interface */
+        .gradio-container {
+            background-color: #74BA9C !important;
+            display: flex !important;
+            flex-direction: row; /* Make the left and right sections side by side */
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+            width: 100%;
+            overflow: visible !important;
+        }
+
+        /* Left container for logo, input, and buttons */
+        .gradio-left-container {
+            display: flex;
+            flex-direction: column;
+            width: 40%;  /* Adjust width as needed */
+            padding-right: 20px; /* Space between left and right sections */
+        }
+
+        /* Right container for the chat output */
+        .gradio-right-container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            margin-left: 20px;  /* Space between left and right sections */
+        }
+
+        /* Style the logo */
+        #logo img {
+            width: auto;
+            height: 190px;  /* Adjust the height of the logo */
+            max-width: 100%;
+            margin-bottom: 20px; /* Add margin for spacing between logo and other elements */
+        }
+
+        /* Make the input text box expand to fill available space */
+        .input-textbox {
+            flex-grow: 1;
+            height: 100px;
+            background-color: #f5f5f5 !important;
+        }
+
         /* Submit button style */
         .submit-button {
             background-color: #E69A8D !important; /* Coral Red */
@@ -19,19 +62,9 @@ def custom_css():
             cursor: pointer;
             border-radius: 5px;
         }
-        
+
         .submit-button:hover {
             background-color: #D17F73 !important;
-        }
-
-        /* Chat container for the right section */
-        .chat-container {
-            max-height: 500px;
-            overflow-y: auto;
-            flex: 1;
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin-left: 20px;
         }
 
         /* Feedback buttons layout */
@@ -39,42 +72,6 @@ def custom_css():
             display: flex;
             gap: 10px;
             margin-top: 5px;
-        }
-
-        /* Overall container for Gradio interface */
-        .gradio-container {
-            background-color: #74BA9C !important;
-            display: flex !important;
-            min-height: 100vh;  /* Full viewport height */
-            padding: 20px;
-            box-sizing: border-box;
-            width: 100%;
-            overflow: visible !important;
-        }
-
-        /* Left container for input and buttons */
-        .gradio-left-container {
-            display: flex;
-            flex-direction: column;
-            width: 40%;  /* Take up 40% of the width */
-            height: 100%;  /* Full height */
-            padding-right: 20px; /* Space between left and right sections */
-        }
-
-        /* Right container for the chat output */
-        .gradio-right-container {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            height: 100%;  /* Full height */
-            margin-left: 20px;  /* Space between the input and the chat */
-        }
-
-        /* Make the input text box expand to fill available space */
-        .input-textbox {
-            flex-grow: 1;
-            height: 100px;  /* Set a fixed height for the input field */;
-            background-color: #f5f5f5 !important; /* Light grey */
         }
 
         /* Ensure the full page is responsive */
@@ -85,25 +82,11 @@ def custom_css():
             overflow-y: auto;
         }
 
-        /* Make the Gradio container use full height of the window */
-        .gradio-interface {
-            height: 100%;
-        }
-
-        /* Style the input and output container */
         .gradio-row {
             display: flex;
             justify-content: flex-start;
             align-items: flex-start;
         }
-                /* Style the logo */
-        #logo img {
-            width: auto;   /* Auto scale width */
-            height: 250px;  /* Set the height for the logo */
-            max-width: 100%; /* Ensure the logo doesn't stretch beyond container */
-        }
-
-
     </style>
     """
     return custom_css
