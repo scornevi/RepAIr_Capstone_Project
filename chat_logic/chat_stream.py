@@ -6,7 +6,8 @@ from rag.ifixit_document_retrieval import load_ifixit_guides
 #model
 from helper_functions.llm_base_client import llm_base_client_init
 from chat_logic.prompts import load_prompts
-
+import time
+import gradio as gr
 
 def chatbot_answer(user_query, memory=None,  context="", prompt="default", response_type=None, modelname="llama3-8b-8192", temp=0.3):
     """ 
@@ -104,9 +105,6 @@ def chatbot_interface(history, user_query, response_type):
     return answer
 
 
-#NEW feedback functions:
-import time
-import gradio as gr
 
 # Feedback function for thumbs up (chat ends with success message & restarts)
 def feedback_positive(history):
@@ -119,7 +117,7 @@ def feedback_positive(history):
     yield [], gr.update(value="") # reset chat
 
 
-# Feedback function for thumbs down (chat continues)
+# Feedback function for thumbs down (chat restarts)
 def feedback_negative(history):
     history.append((None, "I'm sorry to hear that. Do you want me to create a support ticket for you so that you can seek professional help?"))
     print("Chat history:", history)
@@ -128,27 +126,6 @@ def feedback_negative(history):
     history.clear()
     print("History after clearing:", history) 
     yield [], gr.update(value="") 
-
-# User reply if support ticket is needed
-# def show_follow_up():
-#     return gr.update(visible=True)
-
-# Feedback function for thumbs down (chat continues)
-# def support_ticket_needed(message, history):
-#     user_message = message.strip().lower()
-#     history.append(("User", message))
-
-#     if "yes" in user_message:
-#         history.append((None, "🛠️ Your individual support ticket is created."))
-#         yield history, ""
-#     elif "no" in user_message:
-#         history.append((None, "👍 Ok, I would be happy to help with the next repair problem."))
-#         yield history, "" # shows message
-#         time.sleep(5) # short break for message to remain
-#         yield [], "" # reset chat
-#     else:
-#         history.append((None, "❓ Please answer with yes or no."))
-#         yield history, ""  # shows message
 
 
 
