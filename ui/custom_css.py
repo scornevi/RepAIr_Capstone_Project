@@ -85,11 +85,12 @@ def custom_css():
         /* Overall container for Gradio interface */
         .gradio-container {
             background-color: #74BA9C !important;
-            display: flex;
+            display: flex !important;
             height: 100vh;  /* Full viewport height */
             padding: 20px;
             box-sizing: border-box;
             width: 100%;
+            overflow: visible !important;
         }
 
         /* Left container for input and buttons */
@@ -121,7 +122,8 @@ def custom_css():
         body {
             margin: 0;
             padding: 0;
-            overflow: hidden;  /* Prevent page scrolling */
+            height: auto;
+            overflow-y: auto;
         }
 
         /* Make the Gradio container use full height of the window */

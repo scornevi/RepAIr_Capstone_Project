@@ -91,8 +91,7 @@ def interface_init():
             with gr.Column(scale=2, elem_id="gradio-right-container"):
                 # Chat history output
                 chat_history = gr.State([])  # For maintaining the chat state
-                chatbot = gr.Chatbot(elem_id="chat-container",
-                                     height=400)
+                chatbot = gr.Chatbot(elem_id="chat-container")
 
         # Connect buttons and inputs
         submit_btn.click(fn=chatbot_interface, inputs=[chatbot, user_input, response_type], outputs=chatbot)
