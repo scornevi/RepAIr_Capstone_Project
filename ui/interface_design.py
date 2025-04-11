@@ -2,7 +2,8 @@
 #%%
 
 import gradio as gr
-from chat_logic.chat_stream import chatbot_interface, feedback_positive, feedback_negative, support_ticket_needed
+import time
+from chat_logic.chat_stream import chatbot_interface, feedback_positive, feedback_negative#, show_follow_up, support_ticket_needed
 from ui.custom_css import custom_css
 
 def interface_init():
@@ -40,18 +41,18 @@ def interface_init():
             thumbs_down = gr.Button("👎 No")
 
         # NEW: Support-Follow-up
-        # follow_up_input = gr.Textbox(placeholder="Yes or No", label="Support needed?", visible=False)
+        #follow_up_input = gr.Textbox(placeholder="Yes or No", label="Support needed?", visible=False)
 
         # Connect thumbs up to success message (stops chat)
         thumbs_up.click(fn=feedback_positive, inputs=[chat_history], outputs=[chatbot, user_input])
 
         # NEW (then-Part added)
         # Connect thumbs down to continue troubleshooting
-        # thumbs_down.click(
-        #     fn=feedback_negative,
-        #     inputs=[chat_history],
-        #     outputs=chatbot
-        # ).then(
+        thumbs_down.click(
+            fn=feedback_negative,
+            inputs=[chat_history],
+            outputs=[chatbot, user_input]
+        )#.then(
         #     fn=lambda: gr.update(visible=True),
         #     inputs=None,
         #     outputs=follow_up_input
