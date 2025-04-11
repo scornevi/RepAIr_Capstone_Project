@@ -54,7 +54,7 @@ def interface_init():
                 
 
         # Connect buttons and inputs
-        submit_btn.click(fn=chatbot_interface, inputs=[chatbot, user_input, response_type], outputs=[chatbot, user_input])
+        submit_btn.click(fn=chatbot_interface, inputs=[chatbot, user_input, response_type], outputs=chatbot)
         user_input.submit(chatbot_interface, [chatbot, user_input, response_type], chatbot)
 
         # NEW: Support-Follow-up
