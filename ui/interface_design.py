@@ -33,36 +33,37 @@ def interface_init():
         # "Did the repair work?" label
         gr.Markdown("**Did the repair work?**")
 
-        # NEW: Support-Follow-up
-        follow_up_input = gr.Textbox(placeholder="Yes or No", label="Support needed?", visible=False)
 
         # Feedback buttons (not functional yet)
         with gr.Row(elem_classes="feedback-buttons"):
             thumbs_up = gr.Button("👍 Yes")
             thumbs_down = gr.Button("👎 No")
 
+        # NEW: Support-Follow-up
+        # follow_up_input = gr.Textbox(placeholder="Yes or No", label="Support needed?", visible=False)
+
         # Connect thumbs up to success message (stops chat)
-        thumbs_up.click(fn=feedback_positive, inputs=[chat_history], outputs=[chatbot, user_input]) # NEU: user_input added
+        thumbs_up.click(fn=feedback_positive, inputs=[chat_history], outputs=[chatbot, user_input])
 
         # NEW (then-Part added)
         # Connect thumbs down to continue troubleshooting
-        thumbs_down.click(
-            fn=feedback_negative,
-            inputs=[chat_history],
-            outputs=chatbot
-        ).then(
-            fn=lambda: gr.update(visible=True),
-            inputs=None,
-            outputs=follow_up_input
-        )
+        # thumbs_down.click(
+        #     fn=feedback_negative,
+        #     inputs=[chat_history],
+        #     outputs=chatbot
+        # ).then(
+        #     fn=lambda: gr.update(visible=True),
+        #     inputs=None,
+        #     outputs=follow_up_input
+        # )
 
         # NEW
         # Query support ticket
-        follow_up_input.submit(
-            fn=support_ticket_needed,
-            inputs=[follow_up_input, chatbot],
-            outputs=[chatbot, follow_up_input]
-        )
+        # follow_up_input.submit(
+        #     fn=support_ticket_needed,
+        #     inputs=[follow_up_input, chatbot],
+        #     outputs=[chatbot, follow_up_input]
+        # )
         
     app.queue().launch()
 

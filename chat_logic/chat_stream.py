@@ -112,7 +112,7 @@ def feedback_positive(history):
      history.append((None, "🎉 Great! We're happy to hear that your repair was successful! If you need help in the future, feel free to ask. I will automatically restart the chat."))
      yield history # shows message
      time.sleep(5) # short break for message to remain
-     yield [], "" # reset chat
+     yield [] # reset chat
 
 # Feedback function for thumbs down (chat continues)
 def feedback_negative(history):
