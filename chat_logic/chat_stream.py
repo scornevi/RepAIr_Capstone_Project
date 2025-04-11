@@ -6,7 +6,8 @@ from rag.ifixit_document_retrieval import load_ifixit_guides
 #model
 from helper_functions.llm_base_client import llm_base_client_init
 from chat_logic.prompts import load_prompts
-
+import time
+import gradio as gr
 
 def chatbot_answer(user_query, memory=None,  context="", prompt="default", response_type=None, modelname="llama3-8b-8192", temp=0.3):
     """ 
@@ -102,13 +103,30 @@ def chatbot_interface(history, user_query, response_type):
         answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="repair_helper")
 
     return answer
-                
-# Feedback function for thumbs up (chat ends with success message)
-def feedback_positive(history):
-    history.append((None, "🎉 Great! We're happy to hear that your repair was successful! If you need help in the future, feel free to ask."))
-    return history
 
-# Feedback function for thumbs down (chat continues)
+
+
+# Feedback function for thumbs up (chat ends with success message & restarts)
+def feedback_positive(history):
+    history.append([None, "🎉 Great! We're happy to hear that your repair was successful! If you need help in the future, feel free to ask. I will automatically restart the chat."])
+    print("Chat history:", history)
+    yield history, gr.update(value="") # shows message
+    time.sleep(5) # short break for message to remain
+    history.clear()
+    print("History after clearing:", history) 
+    yield [], gr.update(value="") # reset chat
+
+
+# Feedback function for thumbs down (chat restarts)
 def feedback_negative(history):
-    history.append((None, "I'm sorry to hear that. Could you describe the issue further? Maybe we can find another solution."))
-    return history
+    history.append((None, "I'm sorry to hear that. Do you want me to create a support ticket for you so that you can seek professional help?"))
+    print("Chat history:", history)
+    yield history, gr.update(value="") # shows message
+    time.sleep(5) # short break for message to remain
+    history.clear()
+    print("History after clearing:", history) 
+    yield [], gr.update(value="") 
+
+
+
+

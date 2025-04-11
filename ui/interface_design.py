@@ -21,10 +21,6 @@ def interface_init():
                 # Logo
                 gr.Image(logo_path, elem_id="logo", show_label=False)
 
-                # Intro text to push the left box lower
-                # gr.Markdown("# Pick an answer style and let the Repair Assistant help you!")
-
-
                 response_type = gr.Radio(
                     ["Simple Language", "Technical", "Homer Simpson Language", "Sarcasm"],
                     label="Answer Style"
@@ -42,7 +38,7 @@ def interface_init():
                 chat_history = gr.State([])  # For maintaining the chat state
                 chatbot = gr.Chatbot(elem_id="chat-container")
                 
-                  # Input components
+                # Input components
                 user_input = gr.Textbox(
                     label="Pick an answer style and let the Repair Assistant help you!",
                     placeholder="Please name device, model and problem.",
@@ -50,16 +46,22 @@ def interface_init():
                 )
                 submit_btn = gr.Button("Submit", elem_classes="submit-button")
 
-                
-
         # Connect buttons and inputs
-        submit_btn.click(fn=chatbot_interface, inputs=[chatbot, user_input, response_type], outputs=[chatbot, user_input])
+        submit_btn.click(fn=chatbot_interface, inputs=[chatbot, user_input, response_type], outputs=chatbot)
         user_input.submit(chatbot_interface, [chatbot, user_input, response_type], chatbot)
 
         # Connect thumbs up to success message (stops chat)
-        thumbs_up.click(fn=feedback_positive, inputs=[chat_history], outputs=chatbot)
+        thumbs_up.click(
+            fn=feedback_positive,
+            inputs=[chat_history],
+            outputs=[chatbot, user_input]
+        )
 
-        # Connect thumbs down to continue troubleshooting
-        thumbs_down.click(fn=feedback_negative, inputs=[chat_history], outputs=chatbot)
-
+        # Connect thumbs down (stops chat)
+        thumbs_down.click(
+            fn=feedback_negative,
+            inputs=[chat_history],
+            outputs=[chatbot, user_input]
+        )
+        
     app.queue().launch()
