@@ -86,7 +86,7 @@ def custom_css():
         .gradio-container {
             background-color: #74BA9C !important;
             display: flex !important;
-            height: 100vh;  /* Full viewport height */
+            min-height: 100vh;  /* Full viewport height */
             padding: 20px;
             box-sizing: border-box;
             width: 100%;
