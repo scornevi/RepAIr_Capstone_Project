@@ -76,6 +76,11 @@ def chatbot_rag_init(user_query):
     vector_database = create_embedding_vector_db(chunks)
     return vector_database
 
+# NEW
+# def send_to_groq_api(history):
+#     # Removes messages with empty/missing 'content'
+#     sanitized_history = [msg for msg in history if msg.get('content')]
+
 def chatbot_interface(history, user_query, response_type):
     """ 
 
@@ -102,10 +107,6 @@ def chatbot_interface(history, user_query, response_type):
     else: 
         answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="repair_helper")
 
-    return answer
-
-
-
 # Feedback function for thumbs up (chat ends with success message & restarts)
 def feedback_positive(history):
     history.append([None, "🎉 Great! We're happy to hear that your repair was successful! If you need help in the future, feel free to ask. I will automatically restart the chat."])
@@ -118,15 +119,70 @@ def feedback_positive(history):
 
 
 # Feedback function for thumbs down (chat restarts)
+# def feedback_negative(history):
+#     history.append((None, "I'm sorry to hear that. Do you want me to create a support ticket for you so that you can seek professional help?"))
+#     print("Chat history:", history)
+#     yield history, gr.update(value="") # shows message
+#     time.sleep(5) # short break for message to remain
+#     history.clear()
+#     print("History after clearing:", history) 
+#     yield [], gr.update(value="") 
+
+# NEW Feedback function for thumbs down
 def feedback_negative(history):
     history.append((None, "I'm sorry to hear that. Do you want me to create a support ticket for you so that you can seek professional help?"))
     print("Chat history:", history)
-    yield history, gr.update(value="") # shows message
-    time.sleep(5) # short break for message to remain
-    history.clear()
-    print("History after clearing:", history) 
-    yield [], gr.update(value="") 
+    return history, "awaiting_support_confirmation"
 
+# NEW Feedback function for thumbs down (chat continues)
+# def support_ticket_needed(message, history, state):
+#     user_message = message.strip().lower()
+#     history.append([message, None])
 
+#     if state == "awaiting_support_confirmation":
+#         if "yes" in user_message:
+#             history.append((None, "🛠️ Your individual support ticket is created."))
+#             yield history, "", "normal"
+#         elif "no" in user_message:
+#             history.append((None, "👍 Ok, I would be happy to help with the next repair problem."))
+#             yield history, "", "normal" # shows message
+#             time.sleep(5) # short break for message to remain
+#             history.clear()
+#             yield [], "", "normal" # reset chat
+#         else:
+#             history.append((None, "❓ Please answer with yes or no."))
+#             yield history, "", "awaiting_support_confirmation"
 
+# NEW WIP: support ticket creation
+def support_ticket_needed(message, history, state):
+    user_message = message.strip().lower()
+    history.append([message, None])
+
+    if state == "awaiting_support_confirmation":
+        if "yes" in user_message:
+            # Extrahiere den bisherigen Verlauf als Kontext
+            context = "\n".join([f"User: {msg[0]}\nAssistant: {msg[1]}" for msg in history if msg[0] and msg[1]])
+            # Generiere den Prompt für das Support-Ticket
+            ticket_prompt = load_prompts(prompt="support_ticket", context=context)
+            # Initialisiere den LLM-Client
+            client = llm_base_client_init()
+            # Erstelle das Support-Ticket
+            ticket_response = client.chat.completions.create(
+                messages=[{"role": "system", "content": ticket_prompt}],
+                model="llama3-8b-8192",
+                temperature=0.3
+            )
+            ticket_text = ticket_response.choices[0].message.content
+            # Füge das generierte Ticket dem Verlauf hinzu
+            history.append((None, f"🛠️ Your support ticket has been created:\n\n{ticket_text}"))
+            yield history, "", "normal"
+        elif "no" in user_message:
+            history.append((None, "👍 Ok, I would be happy to help with the next repair problem."))
+            yield history, "", "normal"
+            time.sleep(5)
+            history.clear()
+            yield [], "", "normal"
+        else:
+            history.append((None, "❓ Please answer with yes or no."))
+            yield history, "", "awaiting_support_confirmation"
 

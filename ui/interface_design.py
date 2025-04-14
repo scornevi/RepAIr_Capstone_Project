@@ -1,6 +1,6 @@
 #%%
 import gradio as gr
-from chat_logic.chat_stream import chatbot_interface, feedback_positive, feedback_negative
+from chat_logic.chat_stream import chatbot_interface, feedback_positive, feedback_negative, support_ticket_needed
 from ui.custom_css import custom_css
 
 def interface_init():
@@ -36,6 +36,7 @@ def interface_init():
             with gr.Column(scale=2, elem_id="gradio-right-container"):
                 # Chat history output
                 chat_history = gr.State([])  # For maintaining the chat state
+                conversation_state = gr.State("normal") # NEW
                 chatbot = gr.Chatbot(elem_id="chat-container")
                 
                 # Input components
@@ -48,7 +49,14 @@ def interface_init():
 
         # Connect buttons and inputs
         submit_btn.click(fn=chatbot_interface, inputs=[chatbot, user_input, response_type], outputs=chatbot)
-        user_input.submit(chatbot_interface, [chatbot, user_input, response_type], chatbot)
+        # user_input.submit(chatbot_interface, [chatbot, user_input, response_type], chatbot)
+
+        # NEW:
+        user_input.submit(
+            fn=support_ticket_needed,
+            inputs=[user_input, chat_history, conversation_state],
+            outputs=[chatbot, user_input, conversation_state]
+        )
 
         # Connect thumbs up to success message (stops chat)
         thumbs_up.click(
@@ -58,10 +66,17 @@ def interface_init():
         )
 
         # Connect thumbs down (stops chat)
+        # thumbs_down.click(
+        #     fn=feedback_negative,
+        #     inputs=[chat_history],
+        #     outputs=[chatbot, user_input]
+        # )
+
+        # NEW: Connect thumbs down (then Part added)
         thumbs_down.click(
             fn=feedback_negative,
             inputs=[chat_history],
-            outputs=[chatbot, user_input]
+            outputs=[chatbot, conversation_state]
         )
-        
+    
     app.queue().launch()
