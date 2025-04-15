@@ -5,7 +5,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 
-def split_documents(documents, chunk_size=800, chunk_overlap=80): # check chunk size and overlap for our purpose
+def split_documents(documents, chunk_size=900, chunk_overlap=90): # check chunk size and overlap for our purpose
     """
     This function splits documents into chunks of given size and overlap.
 
@@ -19,7 +19,8 @@ def split_documents(documents, chunk_size=800, chunk_overlap=80): # check chunk 
     """
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
-        chunk_overlap=chunk_overlap
+        chunk_overlap=chunk_overlap,
+        separators=["###", "Step ", "\n\n", "\n", ".", " ", ""] # check separators for our purpose
     )
     chunks = text_splitter.split_documents(documents=documents)
     return chunks
@@ -48,7 +49,7 @@ def create_embedding_vector_db(chunks):
     return vector_database # optimize
 
 # Function to query the vector database and interact with Groq
-def query_vector_db(query, vector_db):
+def query_vector_db(query, vector_db, k):
     """
     This function queries the vector database with the user query and retrieves relevant documents
 
@@ -61,7 +62,7 @@ def query_vector_db(query, vector_db):
 
     """
     # Retrieve relevant documents
-    docs = vector_db.similarity_search(query, k=3) # neigbors k are the chunks # similarity_search: FAISS function
+    docs = vector_db.similarity_search(query, k) # neigbors k are the chunks # similarity_search: FAISS function
     context = "\n".join([doc.page_content for doc in docs])
 
     return context
