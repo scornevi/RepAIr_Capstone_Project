@@ -1,6 +1,35 @@
 
 from langchain_community.document_loaders import IFixitLoader
 from helper_functions.llm_base_client import llm_base_client_init
+
+def load_guides(search_phrase: str, debug: bool = False):
+    """
+    Load a guide from IFixit based on the search phrase.
+    If no guide is found, iteratively remove the last word and retry.
+
+    Args:
+        search_phrase (str): The phrase to search for in IFixit guides.
+
+    Returns:
+        guides: The loaded guide data or None if no guide is found.
+    """
+    words = search_phrase.split()
+
+    while words:
+        query = " ".join(words)
+        guides = IFixitLoader.load_suggestions(query, doc_type='guide')
+
+        if guides:
+            if(debug == True):
+                print('Used words:', words)
+            return guides  # Return results if found
+
+        words.pop()  # Remove the last word and retry
+
+    print('No guides found')
+    return None  # Return None if no guide is found
+
+
 #function for rewriting info into searchphrase
 def write_searchphrase(search_info: str, debug: bool = False):
     """
@@ -32,33 +61,16 @@ def write_searchphrase(search_info: str, debug: bool = False):
         print('Full searchphrase:', search_phrase)
     return search_phrase
 
-#load guides from iFixit
-def load_guides(search_phrase: str, debug: bool = False):
+def write_searchphrase_from_dict(search_info: dict):
     """
-    Load a guide from IFixit based on the search phrase.
-    If no guide is found, iteratively remove the last word and retry.
-    
-    Args:
-        search_phrase (str): The phrase to search for in IFixit guides.
-        
-    Returns:
-        guides: The loaded guide data or None if no guide is found.
     """
-    words = search_phrase.split()
-    
-    while words:
-        query = " ".join(words)
-        guides = IFixitLoader.load_suggestions(query, doc_type='guide')
-        
-        if guides:
-            if(debug == True):
-                print('Used words:', words)
-            return guides  # Return results if found
-        
-        words.pop()  # Remove the last word and retry
+   # search_phrase = search_info['device'] + ' ' + search_info['brand'] + ' ' + search_info['model']
+    search_phrase = search_info['brand'] + ' ' + search_info['model']+ ' ' + search_info['issue']
+    print('searchphrase:', search_phrase)
+    return search_phrase
 
-    print('No guides found')
-    return None  # Return None if no guide is found
+
+
 
 def load_ifixit_guides(search_info: str, debug: bool = False):
     """
