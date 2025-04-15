@@ -47,7 +47,7 @@ def chatbot_answer(user_query, memory=None,  context="", prompt="default", respo
     )
     return chat_completion
 
-def chatbot_answer_init(user_query, vector_db, history, response_type, prompt, k=5):
+def chatbot_answer_init(user_query, vector_db, history, response_type, prompt, k=5, modelname="llama3-8b-8192", temp=0.3):
     """
     Generate the answer for the answer for the query.
 
@@ -61,7 +61,7 @@ def chatbot_answer_init(user_query, vector_db, history, response_type, prompt, k
         answer (list): The model's response added to the chat history.
     """
     context = query_vector_db(user_query, vector_db, k)
-    message_content = chatbot_answer(user_query, history[-5:], context, prompt, response_type)
+    message_content = chatbot_answer(user_query, history[-5:], context, prompt, response_type, modelname, temp)
     answer = history + [(user_query, message_content.choices[0].message.content)]
     return answer
 
@@ -97,7 +97,7 @@ def chatbot_interface(history, user_query, response_type):
         global vector_db
         vector_db = [] # reset vector database to avoid memory issues
         vector_db = chatbot_rag_init(user_query)
-        answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="repair_guide", k=10)
+        answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="repair_guide", k=10, modelname="llama-3.1-8b-instant", temp=0.3)
     # answer questions to the guide 
     else: 
         answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="repair_helper", k=5)
