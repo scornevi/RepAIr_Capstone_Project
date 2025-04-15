@@ -65,14 +65,14 @@ def interface_init():
             outputs=[chatbot, user_input]
         )
 
-        # Connect thumbs down (stops chat)
+        #Connect thumbs down (stops chat)
         # thumbs_down.click(
         #     fn=feedback_negative,
         #     inputs=[chat_history],
         #     outputs=[chatbot, user_input]
         # )
 
-        # NEW: Connect thumbs down (then Part added)
+        # NEW: Connect thumbs down
         thumbs_down.click(
             fn=feedback_negative,
             inputs=[chat_history],

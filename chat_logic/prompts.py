@@ -39,24 +39,24 @@ def load_prompts(prompt="default", context="", response_type=None):
     
     elif prompt == "repair_helper":
         prompt = (f"Answer the users question about the guide. Use the following context:\n{context}. " + response_type)
+    
+    return prompt
 
 # NEW: Create support ticket
-    elif prompt == "support_ticket":
-        prompt = ("""
-                    You are a technical support assistant. Based on the user's input, generate a structured support ticket with the following fields:
-                    1. Device Type
-                    2. Brand and Model
-                    3. Serial Number (if available)
-                    4. Date of Purchase
-                    5. Problem Description
-                    6. Troubleshooting Steps Already Taken
-                    7. Occurrence Frequency
-                    8. Additional Notes (if available)
+    # elif prompt == "support_ticket":
+    #     prompt = ("""
+    #                 You are a technical support assistant. Based on the user's input, generate a structured support ticket with the following fields:
+    #                 1. Device Type
+    #                 2. Brand and Model
+    #                 3. Serial Number (if available)
+    #                 4. Problem Description
+    #                 5. Troubleshooting Steps Already Taken
+    #                 6. Additional Notes (if available)
 
-                    Ensure the ticket is clear and concise, suitable for submission to a professional repair service.
+    #                 Ensure the ticket is clear and concise, suitable for submission to a professional repair service.
 
-                    User Input:\n
-                    {context}
-                    """ + response_type)
+    #                 User Input:\n
+    #                 {context}
+    #                 """ + response_type)
         
-    return prompt
+    
