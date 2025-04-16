@@ -19,7 +19,7 @@ def interface_init():
             # Left container for the logo, input, and buttons
             with gr.Column(scale=1, elem_id="gradio-left-container"):
                 # Logo
-                gr.Image(logo_path, elem_id="logo", show_label=False)
+                gr.Image(logo_path, elem_id="logo", show_label=False, show_fullscreen_button=False)
 
                 response_type = gr.Radio(
                     ["Simple Language", "Technical", "Homer Simpson Language", "Sarcasm"],
