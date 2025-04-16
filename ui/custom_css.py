@@ -47,7 +47,6 @@ def custom_css():
         .input-textbox {
             flex-grow: 1;
             height: 100px;
-            background-color: #f5f5f5 !important;
         }
 
         /* Submit button style */
