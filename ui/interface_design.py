@@ -52,13 +52,13 @@ def interface_init():
                 # NEW:
                 submit_btn.click(
                     fn=handle_user_input,
-                    inputs=[user_input, chat_history, conversation_state, response_type],
+                    inputs=[user_input, chatbot, conversation_state, response_type],
                     outputs=[chatbot, user_input, conversation_state]
                 )
 
                 user_input.submit(
                     fn=handle_user_input,
-                    inputs=[user_input, chat_history, conversation_state, response_type],
+                    inputs=[user_input, chatbot, conversation_state, response_type],
                     outputs=[chatbot, user_input, conversation_state]
                 )
 

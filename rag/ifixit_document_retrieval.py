@@ -1,6 +1,6 @@
 
 from langchain_community.document_loaders import IFixitLoader
-from helper_functions.llm_base_client import llm_base_client_init
+from helper_functions.llm_client_initialization import llm_base_client_init
 #function for rewriting info into searchphrase
 def write_searchphrase(search_info: str, debug: bool = False):
     """

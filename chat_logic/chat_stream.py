@@ -4,8 +4,9 @@ from rag.vectorization_functions import split_documents, create_embedding_vector
 # lead ifixit infos
 from rag.ifixit_document_retrieval import load_ifixit_guides
 #model
-from helper_functions.llm_base_client import llm_base_client_init
+from helper_functions.llm_client_initialization import llm_base_client_init
 from chat_logic.prompts import load_prompts
+from chat_logic.diagnosis import information_extractor
 import time
 import gradio as gr
 
@@ -62,7 +63,10 @@ def chatbot_answer_init(user_query, vector_db, history, response_type, prompt, k
     returns:
         answer (list): The model's response added to the chat history.
     """
-    context = query_vector_db(user_query, vector_db, k)
+    if vector_db:
+        context = query_vector_db(user_query, vector_db, k)
+    else:
+        context = ""
     message_content = chatbot_answer(user_query, history[-(history_length):], context, prompt, response_type, modelname, temp)
     answer = history + [(user_query, message_content.choices[0].message.content)]
     return answer
@@ -93,26 +97,48 @@ def chatbot_interface(history, user_query, response_type):
         list: The model's response added to the chat history.
     
     """
+    #Diagnose issue
+    answer = chatbot_answer_init(user_query, None, history, response_type, prompt="diagnose_issue")
+    extracted_info = information_extractor(answer)
 
-    # load guides, create embeddings and return answer for first query
-    if len(history) == 0:
+    
+    if any(value == '' or (value is not None and 'none' in value.lower()) or 
+        (value is not None and 'not specified' in value.lower()) or 
+        (value is not None and 'unknown' in value.lower())
+        for value in extracted_info.values()
+        ):
+        pass
+    else:
         global vector_db
         vector_db = [] # reset vector database to avoid memory issues
-        vector_db = chatbot_rag_init(user_query)
-        answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="repair_guide", k=10, modelname="llama-3.1-8b-instant", temp=0.3)
-    # answer questions to the guide 
-    else: 
+        vector_db = chatbot_rag_init(answer[-1][1])
 
-        answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="repair_helper", k=5)
+        repair_question = f"List repair steps for {extracted_info['issue']} of {extracted_info['brand']} {extracted_info['model']}."
 
+        answer = chatbot_answer_init(repair_question, vector_db, history, response_type, prompt="repair_guide", k=10, modelname="llama-3.1-8b-instant", temp=0.3)
+
+
+
+    # load guides, create embeddings and return answer for first query
+    # if len(history) == 0: ## TO BE REPLACED. Condition should be : "as long as we do not have enough info to look up the guides"
+    #     global vector_db
+    #     vector_db = [] # reset vector database to avoid memory issues
+    #     vector_db = chatbot_rag_init(user_query)
+    #     answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="repair_guide", k=10, modelname="llama-3.1-8b-instant", temp=0.3)
+    # # answer questions to the guide 
+    #else: 
+    #    answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="repair_helper", k=5)
+    print("Answer before returning to Handle User INput:", answer)
     return answer
 
 def handle_user_input(user_input_text, history, state, response_type):
     print(state)
+    print("History before calling Chatbot Interface:", history)
     if state == "awaiting_support_confirmation":
         yield from support_ticket_needed(user_input_text, history, state)
     else:
         answer = chatbot_interface(history, user_input_text, response_type)
+        print("Answer before returning to Interface Design:", answer)
         yield answer, "", state
 
 # Feedback function for thumbs up (chat ends with success message & restarts)
