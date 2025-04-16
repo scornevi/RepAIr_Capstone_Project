@@ -35,8 +35,10 @@ def chatbot_answer(user_query, memory=None,  context="", prompt="default", respo
     
     if memory:
         for user_msg, bot_msg in memory:
-            messages.append({"role": "user", "content": user_msg})
-            messages.append({"role": "assistant", "content": bot_msg})
+            if user_msg and user_msg != None:
+                messages.append({"role": "user", "content": user_msg})
+            if bot_msg:
+                messages.append({"role": "assistant", "content": bot_msg})
     messages.append({"role": "user", "content": user_query})
 
     # calling the LLM with the entire chat history in order to get an answer
@@ -100,11 +102,18 @@ def chatbot_interface(history, user_query, response_type):
         answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="repair_guide", k=10, modelname="llama-3.1-8b-instant", temp=0.3)
     # answer questions to the guide 
     else: 
+
         answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="repair_helper", k=5)
 
     return answer
 
-
+def handle_user_input(user_input_text, history, state, response_type):
+    print(state)
+    if state == "awaiting_support_confirmation":
+        yield from support_ticket_needed(user_input_text, history, state)
+    else:
+        answer = chatbot_interface(history, user_input_text, response_type)
+        yield answer, "", state
 
 # Feedback function for thumbs up (chat ends with success message & restarts)
 def feedback_positive(history):
@@ -116,17 +125,28 @@ def feedback_positive(history):
     print("History after clearing:", history) 
     yield [], gr.update(value="") # reset chat
 
-
-# Feedback function for thumbs down (chat restarts)
+# Feedback function for thumbs down
 def feedback_negative(history):
     history.append((None, "I'm sorry to hear that. Do you want me to create a support ticket for you so that you can seek professional help?"))
     print("Chat history:", history)
-    yield history, gr.update(value="") # shows message
-    time.sleep(5) # short break for message to remain
-    history.clear()
-    print("History after clearing:", history) 
-    yield [], gr.update(value="") 
+    yield history, "awaiting_support_confirmation"
 
+# NEW Feedback function for thumbs down (chat continues)
+def support_ticket_needed(message, history, state):
+    user_message = message.strip().lower()
+    history.append((message, ""))
 
-
+    if state == "awaiting_support_confirmation":
+        if "yes" in user_message:
+            history.append((None, "🛠️ Your individual support ticket is created."))
+            yield history, "", "normal"
+        elif "no" in user_message:
+            history.append((None, "👍 Ok, I would be happy to help with the next repair problem."))
+            yield history, "", "normal" # shows message
+            time.sleep(5) # short break for message to remain
+            history.clear()
+            yield [], "", "normal" # reset chat
+        else:
+            history.append((None, "❓ Please answer with yes or no."))
+            yield history, "", "awaiting_support_confirmation"
 

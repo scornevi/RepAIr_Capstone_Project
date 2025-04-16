@@ -1,6 +1,6 @@
 #%%
 import gradio as gr
-from chat_logic.chat_stream import chatbot_interface, feedback_positive, feedback_negative
+from chat_logic.chat_stream import chatbot_interface, feedback_positive, feedback_negative, handle_user_input
 from ui.custom_css import custom_css
 
 def interface_init():
@@ -36,19 +36,31 @@ def interface_init():
             with gr.Column(scale=2, elem_id="gradio-right-container"):
                 # Chat history output
                 chat_history = gr.State([])  # For maintaining the chat state
+                conversation_state = gr.State("normal") # For awaiting the users response if support ticket is needed
+
                 chatbot = gr.Chatbot(elem_id="chat-container")
                 
                 # Input components
                 user_input = gr.Textbox(
                     label="Pick an answer style and let the Repair Assistant help you!",
-                    placeholder="Please name device, model and problem.",
+                    placeholder="Your input here",
+
                     elem_classes="input-textbox"
                 )
                 submit_btn = gr.Button("Submit", elem_classes="submit-button")
 
-        # Connect buttons and inputs
-        submit_btn.click(fn=chatbot_interface, inputs=[chatbot, user_input, response_type], outputs=chatbot)
-        user_input.submit(chatbot_interface, [chatbot, user_input, response_type], chatbot)
+                # NEW:
+                submit_btn.click(
+                    fn=handle_user_input,
+                    inputs=[user_input, chat_history, conversation_state, response_type],
+                    outputs=[chatbot, user_input, conversation_state]
+                )
+
+                user_input.submit(
+                    fn=handle_user_input,
+                    inputs=[user_input, chat_history, conversation_state, response_type],
+                    outputs=[chatbot, user_input, conversation_state]
+                )
 
         # Connect thumbs up to success message (stops chat)
         thumbs_up.click(
@@ -57,11 +69,11 @@ def interface_init():
             outputs=[chatbot, user_input]
         )
 
-        # Connect thumbs down (stops chat)
+        # NEW: Connect thumbs down
         thumbs_down.click(
             fn=feedback_negative,
             inputs=[chat_history],
-            outputs=[chatbot, user_input]
+            outputs=[chatbot, conversation_state]
         )
-        
+    
     app.queue().launch()
