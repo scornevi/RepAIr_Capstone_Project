@@ -37,7 +37,7 @@ def chatbot_answer(user_query, memory=None,  context="", prompt="default", respo
         for user_msg, bot_msg in memory:
             if user_msg and user_msg != None:
                 messages.append({"role": "user", "content": user_msg})
-            if bot_msg:#NEW
+            if bot_msg:
                 messages.append({"role": "assistant", "content": bot_msg})
     messages.append({"role": "user", "content": user_query})
 
