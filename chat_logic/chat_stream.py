@@ -35,7 +35,7 @@ def chatbot_answer(user_query, memory=None,  context="", prompt="default", respo
     
     if memory:
         for user_msg, bot_msg in memory:
-            if user_msg and user_msg != None:#NEW
+            if user_msg and user_msg != None:
                 messages.append({"role": "user", "content": user_msg})
             if bot_msg:#NEW
                 messages.append({"role": "assistant", "content": bot_msg})
@@ -106,7 +106,6 @@ def chatbot_interface(history, user_query, response_type):
     
     return answer
 
-#NEW:
 def handle_user_input(user_input_text, history, state, response_type):
     print(state)
     if state == "awaiting_support_confirmation":
@@ -125,7 +124,7 @@ def feedback_positive(history):
     print("History after clearing:", history) 
     yield [], gr.update(value="") # reset chat
 
-# NEW Feedback function for thumbs down
+# Feedback function for thumbs down
 def feedback_negative(history):
     history.append((None, "I'm sorry to hear that. Do you want me to create a support ticket for you so that you can seek professional help?"))
     print("Chat history:", history)

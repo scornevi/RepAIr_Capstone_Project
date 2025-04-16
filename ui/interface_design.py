@@ -36,13 +36,15 @@ def interface_init():
             with gr.Column(scale=2, elem_id="gradio-right-container"):
                 # Chat history output
                 chat_history = gr.State([])  # For maintaining the chat state
-                conversation_state = gr.State("normal") # NEW: For awaiting the users response if support ticket is needed
+                conversation_state = gr.State("normal") # For awaiting the users response if support ticket is needed
+
                 chatbot = gr.Chatbot(elem_id="chat-container")
                 
                 # Input components
                 user_input = gr.Textbox(
                     label="Pick an answer style and let the Repair Assistant help you!",
-                    placeholder="Your input here",#NEW
+                    placeholder="Your input here",
+
                     elem_classes="input-textbox"
                 )
                 submit_btn = gr.Button("Submit", elem_classes="submit-button")
