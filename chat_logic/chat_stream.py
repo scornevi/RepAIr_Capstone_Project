@@ -150,35 +150,3 @@ def support_ticket_needed(message, history, state):
             history.append((None, "❓ Please answer with yes or no."))
             yield history, "", "awaiting_support_confirmation"
 
-# # NEW WIP: support ticket creation
-# def support_ticket_needed(message, history, state):
-#     user_message = message.strip().lower()
-#     history.append([message, None])
-
-#     if state == "awaiting_support_confirmation":
-#         if "yes" in user_message:
-#             # Extrahiere den bisherigen Verlauf als Kontext
-#             context = "\n".join([f"User: {msg[0]}\nAssistant: {msg[1]}" for msg in history if msg[0] and msg[1]])
-#             # Generiere den Prompt für das Support-Ticket
-#             ticket_prompt = load_prompts(prompt="support_ticket", context=context)
-#             # Initialisiere den LLM-Client
-#             client = llm_base_client_init()
-#             # Erstelle das Support-Ticket
-#             ticket_response = client.chat.completions.create(
-#                 messages=[{"role": "system", "content": ticket_prompt}],
-#                 model="llama3-8b-8192",
-#                 temperature=0.3
-#             )
-#             ticket_text = ticket_response.choices[0].message.content
-#             # Füge das generierte Ticket dem Verlauf hinzu
-#             history.append((None, f"🛠️ Your support ticket has been created:\n\n{ticket_text}"))
-#             yield history, "", "normal"
-#         elif "no" in user_message:
-#             history.append((None, "👍 Ok, I would be happy to help with the next repair problem."))
-#             yield history, "", "normal"
-#             time.sleep(5)
-#             history.clear()
-#             yield [], "", "normal"
-#         else:
-#             history.append((None, "❓ Please answer with yes or no."))
-#             yield history, "", "awaiting_support_confirmation"
