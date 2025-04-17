@@ -68,7 +68,6 @@ def chatbot_answer_init(user_query, vector_db, history, response_type, prompt, k
     else:
         context = ""
     message_content = chatbot_answer(user_query, history[-(history_length):], context, prompt, response_type, modelname, temp)
- #   answer = history + [(user_query, message_content.choices[0].message.content)]
     answer = history + [[user_query, message_content.choices[0].message.content]]
     return answer
 
@@ -134,14 +133,6 @@ def chatbot_interface(history, user_query, response_type, conversation_state):
                                     prompt="repair_helper",
                                     k=5)
     # load guides, create embeddings and return answer for first query
-    # if len(history) == 0: ## TO BE REPLACED. Condition should be : "as long as we do not have enough info to look up the guides"
-    #     global vector_db
-    #     vector_db = [] # reset vector database to avoid memory issues
-    #     vector_db = chatbot_rag_init(user_query)
-    #     answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="repair_guide", k=10, modelname="llama-3.1-8b-instant", temp=0.3)
-    # # answer questions to the guide 
-    #else: 
-    #    answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="repair_helper", k=5)
     print("Answer before returning to Handle User INput:", answer)
     return answer, conversation_state
 
