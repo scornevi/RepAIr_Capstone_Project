@@ -2,8 +2,8 @@
 #%%
 # General
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
+import helper_functions.load_embed_model
 
 def split_documents(documents, chunk_size=900, chunk_overlap=90): # check chunk size and overlap for our purpose
     """
@@ -37,14 +37,11 @@ def create_embedding_vector_db(chunks):
     Returns:
         vector_db: The vector database containing the embedded chunks.
     """
-    # instantiate embedding model
-    embedding = HuggingFaceEmbeddings(
-        model_name='sentence-transformers/all-MiniLM-L6-v2' # EMBEDDING MODEL! converts text to vector ( stick to it)
-    )
     # create the vector store 
+    embed_model = helper_functions.load_embed_model.embedding_model # load embedding model
     vector_database = FAISS.from_documents( # stores embeddings # from_documents includes metadata
         documents=chunks,
-        embedding=embedding
+        embedding=embed_model
     )
     return vector_database # optimize
 
