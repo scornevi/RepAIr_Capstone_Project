@@ -40,7 +40,6 @@ def information_extractor(conversation):
     # Defining parsing instructions for the output
     #Theoretically, the parser is to generate the parsing instructions automatically,
     # but it cannot tell the client to remove the comments in the output, which leads to errors when parsing the json downstream 
-    # parsing_instructions=parser.get_format_instructions()
     parsing_instructions ='''
         The output should be a markdown code snippet formatted in the following schema,
         including the leading and trailing "```json" and "```", without any additional text or comments:
