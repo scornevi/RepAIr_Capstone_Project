@@ -67,6 +67,7 @@ def chatbot_answer_init(user_query, vector_db, history, response_type, prompt, k
         context = query_vector_db(user_query, vector_db, k)
     else:
         context = ""
+
     message_content = chatbot_answer(user_query, history[-(history_length):], context, prompt, response_type, modelname, temp)
     answer = history + [[user_query, message_content.choices[0].message.content]]
     return answer
@@ -151,7 +152,7 @@ def handle_user_input(user_input_text, history, conversation_state, response_typ
 
 # Feedback function for thumbs up (chat ends with success message & restarts)
 def feedback_positive(history):
-    history.append([None, "🎉 Great! We're happy to hear that your repair was successful! If you need help in the future, feel free to ask. I will automatically restart the chat."])
+    history.append([None, "<br><br><br>🎉 Great! We're happy to hear that your repair was successful! If you need help in the future, feel free to ask. I will automatically restart the chat."])
     print("Chat history:", history)
     yield history, gr.update(value="") # shows message
     time.sleep(5) # short break for message to remain
@@ -162,28 +163,34 @@ def feedback_positive(history):
 
 # Feedback function for thumbs down
 def feedback_negative(history):
-    history.append((None, "I'm sorry to hear that. Do you want me to create a support ticket for you so that you can seek professional help?"))
+    history.append((None, "<br><br><br>I'm sorry to hear that. Do you want me to create a support ticket for you so that you can seek professional help?"))
     print("Chat history:", history)
     conversation_state = "awaiting_support_confirmation"
     yield history, conversation_state
 
-# NEW Feedback function for thumbs down (chat continues)
+# Support ticket creation
 def support_ticket_needed(message, history, conversation_state):
     user_message = message.strip().lower()
-    history.append((message, ""))
-
+    history.append((message, None))
     if conversation_state == "awaiting_support_confirmation":
         if "yes" in user_message:
+            ticket_text = chatbot_answer_init("Please summarize this history into a support ticket.",
+                                            vector_db,
+                                            history,
+                                            response_type="Technical",
+                                            prompt="support_ticket",
+                                            history_length=len(history)
+                                            )
+            history.append((None, f"🛠️ Your support ticket has been created:\n\n{ticket_text[-1][1]}"))
             conversation_state = "repair_helper"
-            history.append((None, "🛠️ Your individual support ticket is created."))
             yield history, "", conversation_state
         elif "no" in user_message:
             history.append((None, "👍 Ok, I would be happy to help with the next repair problem."))
-            yield history, "", "normal" # shows message
-            time.sleep(5) # short break for message to remain
-            conversation_state = "interactive_diagnosis"
+            yield history, "", conversation_state
+            time.sleep(5)
             history.clear()
-            yield [], "", conversation_state # reset chat
+            conversation_state = "interactive_diagnosis"
+            yield history, "", conversation_state
         else:
             history.append((None, "❓ Please answer with yes or no."))
             yield history, "", conversation_state

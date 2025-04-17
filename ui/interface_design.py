@@ -35,7 +35,8 @@ def interface_init():
             # Right container for the chat output and feedback buttons
             with gr.Column(scale=2, elem_id="gradio-right-container"):
                 # Chat history output
-                chat_history = gr.State([])  # For maintaining the chat state
+
+                # chat_history = gr.State([])  # For maintaining the chat state
                 conversation_state = gr.State("interactive_diagnosis") # For awaiting the users response if support ticket is needed
 
                 chatbot = gr.Chatbot(elem_id="chat-container")
@@ -49,7 +50,6 @@ def interface_init():
                 )
                 submit_btn = gr.Button("Submit", elem_classes="submit-button")
 
-                # NEW:
                 submit_btn.click(
                     fn=handle_user_input,
                     inputs=[user_input, chatbot, conversation_state, response_type],
@@ -69,7 +69,7 @@ def interface_init():
             outputs=[chatbot, user_input, conversation_state]
         )
 
-        # NEW: Connect thumbs down
+        # Connect thumbs down
         thumbs_down.click(
             fn=feedback_negative,
             inputs=[chatbot],
