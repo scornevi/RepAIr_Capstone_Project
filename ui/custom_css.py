@@ -42,12 +42,15 @@ def custom_css():
             max-width: 100%;
             margin-bottom: 20px; /* Add margin for spacing between logo and other elements */
         }
+        
+        #logo {
+             background-color: #ffffff !important;
+        }
 
         /* Make the input text box expand to fill available space */
         .input-textbox {
             flex-grow: 1;
             height: 100px;
-            background-color: #f5f5f5 !important;
         }
 
         /* Submit button style */

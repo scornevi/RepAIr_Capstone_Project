@@ -33,6 +33,16 @@ def load_prompts(prompt="default", context="", response_type=None):
         prompt = ("""You are a helpful assistant that helps users with the repair of their devices.
                   Ask them if they need help with a repair.
                   If they do, ask them to provide the device name and model. """ + response_type)
+        
+    elif prompt == "diagnose_issue":
+        prompt = ("""
+                You are a helpful assistant.
+                Your job is to determine if an appliance or device, the brand of the appliance or device,
+                the model of the appliance or device and the user's issue with the applicance or device
+                were mentioned in the user's message.
+                If yes, extract the appliance or device, its model and its issue and confirm it back to the user and stop asking for information.
+                If not, continue to ask the user to provide the missing information until they provide it.
+                Do not provide troubleshooting steps or solutions.""" + response_type)
     
     elif prompt == "repair_guide":
         prompt = (f"List repair steps for the Problem. Use the following context:\n{context}. " + response_type)

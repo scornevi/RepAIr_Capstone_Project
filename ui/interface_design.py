@@ -19,7 +19,7 @@ def interface_init():
             # Left container for the logo, input, and buttons
             with gr.Column(scale=1, elem_id="gradio-left-container"):
                 # Logo
-                gr.Image(logo_path, elem_id="logo", show_label=False)
+                gr.Image(logo_path, elem_id="logo", show_label=False, show_fullscreen_button=False)
 
                 response_type = gr.Radio(
                     ["Simple Language", "Technical", "Homer Simpson Language", "Sarcasm"],
@@ -35,8 +35,9 @@ def interface_init():
             # Right container for the chat output and feedback buttons
             with gr.Column(scale=2, elem_id="gradio-right-container"):
                 # Chat history output
+
                 # chat_history = gr.State([])  # For maintaining the chat state
-                conversation_state = gr.State("normal") # For awaiting the users response if support ticket is needed
+                conversation_state = gr.State("interactive_diagnosis") # For awaiting the users response if support ticket is needed
 
                 chatbot = gr.Chatbot(elem_id="chat-container")
                 
@@ -65,7 +66,7 @@ def interface_init():
         thumbs_up.click(
             fn=feedback_positive,
             inputs=[chatbot],
-            outputs=[chatbot, user_input]
+            outputs=[chatbot, user_input, conversation_state]
         )
 
         # Connect thumbs down
