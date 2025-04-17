@@ -154,7 +154,8 @@ def handle_user_input(user_input_text, history, conversation_state, response_typ
 def feedback_positive(history):
     history.append([None, "<br><br><br>🎉 Great! We're happy to hear that your repair was successful! If you need help in the future, feel free to ask. I will automatically restart the chat."])
     print("Chat history:", history)
-    yield history, gr.update(value="") # shows message
+    conversation_state = "repair_helper"
+    yield history, gr.update(value=""), conversation_state # shows message
     time.sleep(5) # short break for message to remain
     history.clear()
     conversation_state = "interactive_diagnosis"
