@@ -183,7 +183,7 @@ print(matching_strings)
 # %%
 from rapidfuzz import fuzz
 
-target = "Miele Stoftronic T8403c"
+target = "Gorenje AJW12R435"
 threshold = 60  # use 80 if you want to go back to stricter filtering
 
 # Function to check if any cell in a row is similar to the target

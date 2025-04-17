@@ -4,8 +4,9 @@ from rag.vectorization_functions import split_documents, create_embedding_vector
 # lead ifixit infos
 from rag.ifixit_document_retrieval import load_ifixit_guides
 #model
-from helper_functions.llm_base_client import llm_base_client_init
+from helper_functions.llm_client_initialization import llm_base_client_init
 from chat_logic.prompts import load_prompts
+from chat_logic.diagnosis import information_extractor
 import time
 import gradio as gr
 
@@ -62,9 +63,12 @@ def chatbot_answer_init(user_query, vector_db, history, response_type, prompt, k
     returns:
         answer (list): The model's response added to the chat history.
     """
-    context = query_vector_db(user_query, vector_db, k)
+    if vector_db:
+        context = query_vector_db(user_query, vector_db, k)
+    else:
+        context = ""
     message_content = chatbot_answer(user_query, history[-(history_length):], context, prompt, response_type, modelname, temp)
-    answer = history + [(user_query, message_content.choices[0].message.content)]
+    answer = history + [[user_query, message_content.choices[0].message.content]]
     return answer
 
 def chatbot_rag_init(user_query):
@@ -78,7 +82,7 @@ def chatbot_rag_init(user_query):
     vector_database = create_embedding_vector_db(chunks)
     return vector_database
 
-def chatbot_interface(history, user_query, response_type):
+def chatbot_interface(history, user_query, response_type, conversation_state):
     """ 
 
     UI uses this function to handle general chat functionality. 
@@ -93,27 +97,57 @@ def chatbot_interface(history, user_query, response_type):
         list: The model's response added to the chat history.
     
     """
+    #Diagnose issue
+    if conversation_state == 'interactive_diagnosis':
+        answer = chatbot_answer_init(user_query, None, history, response_type, prompt="diagnose_issue")
+        extracted_info = information_extractor(answer)
+    
+        if any(value == '' or (value is not None and 'none' in value.lower()) or 
+            (value is not None and 'not specified' in value.lower()) or 
+            (value is not None and 'unknown' in value.lower())
+            for value in extracted_info.values()
+            ):
+            conversation_state = "interactive_diagnosis"
+        else:
+            global vector_db
+            vector_db = [] # reset vector database to avoid memory issues
+            vector_db = chatbot_rag_init(answer[-1][1])
 
+            repair_question = f"List repair steps for {extracted_info['issue']} of {extracted_info['brand']} {extracted_info['model']}."
+
+            answer = chatbot_answer_init(repair_question,
+                                         vector_db,
+                                         history,
+                                         response_type,
+                                         prompt="repair_guide",
+                                        k=10,
+                                        modelname="llama-3.1-8b-instant",
+                                        temp=0.3)
+            conversation_state = "repair_mode"
+
+    elif conversation_state == 'repair_mode':
+        answer = chatbot_answer_init(user_query,
+                                    vector_db,
+                                    history,
+                                    response_type,
+                                    prompt="repair_helper",
+                                    k=5)
     # load guides, create embeddings and return answer for first query
-    if len(history) == 0:
-        global vector_db
-        vector_db = [] # reset vector database to avoid memory issues
-        vector_db = chatbot_rag_init(user_query)
-        answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="repair_guide", k=10, modelname="llama-3.1-8b-instant", temp=0.3)
-    # answer questions to the guide 
-    else: 
+    print("Answer before returning to Handle User INput:", answer)
+    return answer, conversation_state
 
-        answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="repair_helper", k=5)
+def handle_user_input(user_input_text, history, conversation_state, response_type):
+    print(conversation_state)
+    print(type(conversation_state))
+    print("History before calling Chatbot Interface:", history)
 
-    return answer
-
-def handle_user_input(user_input_text, history, state, response_type):
-    print(state)
-    if state == "awaiting_support_confirmation":
-        yield from support_ticket_needed(user_input_text, history, state)
+    if conversation_state == "awaiting_support_confirmation":
+        yield from support_ticket_needed(user_input_text, history, conversation_state)
     else:
-        answer = chatbot_interface(history, user_input_text, response_type)
-        yield answer, "", state
+        answer, conversation_state = chatbot_interface(history, user_input_text, response_type, conversation_state)
+        print("Answer before returning to Interface Design:", answer)
+        print("Conversation state before returning to Interface Design:", conversation_state)
+        yield answer, "", conversation_state
 
 # Feedback function for thumbs up (chat ends with success message & restarts)
 def feedback_positive(history):
@@ -122,31 +156,35 @@ def feedback_positive(history):
     yield history, gr.update(value="") # shows message
     time.sleep(5) # short break for message to remain
     history.clear()
+    conversation_state = "interactive_diagnosis"
     print("History after clearing:", history) 
-    yield [], gr.update(value="") # reset chat
+    yield [], gr.update(value=""), conversation_state # reset chat
 
 # Feedback function for thumbs down
 def feedback_negative(history):
     history.append((None, "I'm sorry to hear that. Do you want me to create a support ticket for you so that you can seek professional help?"))
     print("Chat history:", history)
-    yield history, "awaiting_support_confirmation"
+    conversation_state = "awaiting_support_confirmation"
+    yield history, conversation_state
 
 # NEW Feedback function for thumbs down (chat continues)
-def support_ticket_needed(message, history, state):
+def support_ticket_needed(message, history, conversation_state):
     user_message = message.strip().lower()
     history.append((message, ""))
 
-    if state == "awaiting_support_confirmation":
+    if conversation_state == "awaiting_support_confirmation":
         if "yes" in user_message:
+            conversation_state = "repair_helper"
             history.append((None, "🛠️ Your individual support ticket is created."))
-            yield history, "", "normal"
+            yield history, "", conversation_state
         elif "no" in user_message:
             history.append((None, "👍 Ok, I would be happy to help with the next repair problem."))
             yield history, "", "normal" # shows message
             time.sleep(5) # short break for message to remain
+            conversation_state = "interactive_diagnosis"
             history.clear()
-            yield [], "", "normal" # reset chat
+            yield [], "", conversation_state # reset chat
         else:
             history.append((None, "❓ Please answer with yes or no."))
-            yield history, "", "awaiting_support_confirmation"
+            yield history, "", conversation_state
 
