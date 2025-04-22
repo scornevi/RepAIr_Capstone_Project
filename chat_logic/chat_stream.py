@@ -103,9 +103,9 @@ def chatbot_interface(history, user_query, response_type, conversation_state):
         answer = chatbot_answer_init(user_query, None, history, response_type, prompt="diagnose_issue")
         extracted_info = information_extractor(answer)
     
-        if any(value == '' or (value is not None and 'none' in value.lower()) or 
+        if any(value == '' or value is None or (value is not None and 'none' in value.lower()) or 
             (value is not None and 'not specified' in value.lower()) or 
-            (value is not None and 'unknown' in value.lower())
+            (value is not None and 'unknown' in value.lower() or (value is not None and 'no specific' in value.lower()))
             for value in extracted_info.values()
             ):
             conversation_state = "interactive_diagnosis"
