@@ -10,3 +10,5 @@ def checkpoint(path):
     print("-" * 30)
     print(f"{script_name} successfully executed!")
     print("-" * 30)
+    
+# use: checkpoint(__file__) inany script to get the message
