@@ -63,7 +63,7 @@ def chatbot_answer_init(user_query, vector_db, history, response_type, prompt, k
     returns:
         answer (list): The model's response added to the chat history.
     """
-    if vector_db:
+    if vector_db != []:
         context = query_vector_db(user_query, vector_db, k)
     else:
         context = ""
@@ -83,7 +83,7 @@ def chatbot_rag_init(user_query):
     vector_database = create_embedding_vector_db(chunks)
     return vector_database
 
-def chatbot_interface(history, user_query, response_type, conversation_state):
+def chatbot_interface(history, user_query, response_type, conversation_state, vector_db):
     """ 
 
     UI uses this function to handle general chat functionality. 
@@ -100,7 +100,7 @@ def chatbot_interface(history, user_query, response_type, conversation_state):
     """
     #Diagnose issue
     if conversation_state == 'interactive_diagnosis':
-        answer = chatbot_answer_init(user_query, None, history, response_type, prompt="diagnose_issue")
+        answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="diagnose_issue")
         extracted_info = information_extractor(answer)
     
         if any(value == '' or value is None or (value is not None and 'none' in value.lower()) or 
@@ -110,7 +110,6 @@ def chatbot_interface(history, user_query, response_type, conversation_state):
             ):
             conversation_state = "interactive_diagnosis"
         else:
-            global vector_db
             vector_db = [] # reset vector database to avoid memory issues
             vector_db = chatbot_rag_init(answer[-1][1])
 
@@ -135,9 +134,9 @@ def chatbot_interface(history, user_query, response_type, conversation_state):
                                     k=5)
     # load guides, create embeddings and return answer for first query
     print("Answer before returning to Handle User INput:", answer)
-    return answer, conversation_state
+    return answer, conversation_state, vector_db
 
-def handle_user_input(user_input_text, history, conversation_state, response_type):
+def handle_user_input(user_input_text, history, conversation_state, response_type, vector_db):
     print(conversation_state)
     print(type(conversation_state))
     print("History before calling Chatbot Interface:", history)
@@ -145,10 +144,10 @@ def handle_user_input(user_input_text, history, conversation_state, response_typ
     if conversation_state == "awaiting_support_confirmation":
         yield from support_ticket_needed(user_input_text, history, conversation_state)
     else:
-        answer, conversation_state = chatbot_interface(history, user_input_text, response_type, conversation_state)
+        answer, conversation_state, vector_db = chatbot_interface(history, user_input_text, response_type, conversation_state, vector_db)
         print("Answer before returning to Interface Design:", answer)
         print("Conversation state before returning to Interface Design:", conversation_state)
-        yield answer, "", conversation_state
+        yield answer, "", conversation_state, vector_db # return answer to the UI and clear the input box
 
 # Feedback function for thumbs up (chat ends with success message & restarts)
 def feedback_positive(history):
@@ -176,7 +175,7 @@ def support_ticket_needed(message, history, conversation_state):
     if conversation_state == "awaiting_support_confirmation":
         if "yes" in user_message:
             ticket_text = chatbot_answer_init("Please summarize this history into a support ticket.",
-                                            vector_db,
+                                            [],
                                             history,
                                             response_type="Technical",
                                             prompt="support_ticket",

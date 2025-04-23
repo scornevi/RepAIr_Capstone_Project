@@ -38,7 +38,7 @@ def interface_init():
 
                 # chat_history = gr.State([])  # For maintaining the chat state
                 conversation_state = gr.State("interactive_diagnosis") # For awaiting the users response if support ticket is needed
-
+                vector_db = gr.State([]) # For awaiting the users response if support ticket is needed
                 chatbot = gr.Chatbot(elem_id="chat-container")
                 
                 # Input components
@@ -52,14 +52,14 @@ def interface_init():
 
                 submit_btn.click(
                     fn=handle_user_input,
-                    inputs=[user_input, chatbot, conversation_state, response_type],
-                    outputs=[chatbot, user_input, conversation_state]
+                    inputs=[user_input, chatbot, conversation_state, response_type, vector_db],
+                    outputs=[chatbot, user_input, conversation_state, vector_db]
                 )
 
                 user_input.submit(
                     fn=handle_user_input,
-                    inputs=[user_input, chatbot, conversation_state, response_type],
-                    outputs=[chatbot, user_input, conversation_state]
+                    inputs=[user_input, chatbot, conversation_state, response_type, vector_db],
+                    outputs=[chatbot, user_input, conversation_state, vector_db]
                 )
 
         # Connect thumbs up to success message (stops chat)
