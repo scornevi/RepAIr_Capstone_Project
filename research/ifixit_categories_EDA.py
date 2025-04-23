@@ -37,11 +37,11 @@ categories_list = []
 
 # Function to recursively extract categories, subcategories, intermediate levels, and models
 def extract_all_levels(categories, hierarchy_levels):
-    """_summary_ this function extracts all levels of categories
+    """ this function extracts all levels of categories
 
     Args:
-        categories (_type_): empty list
-        hierarchy_levels (_type_): structure of categories
+        categories (list): empty list
+        hierarchy_levels (list): structure of categories
     """
     if isinstance(categories, dict):
         for key, value in categories.items():
