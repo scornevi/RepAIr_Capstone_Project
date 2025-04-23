@@ -23,12 +23,13 @@ def llm_langchain_client_init(modelname="llama-3.1-8b-instant", temp=0.2):
     '''
     Initializes the LLM client using the langchain_groq package with personal API key
     
-    INPUT:
-    modelname (str): The name of the model to use. "llama-3.1-8b-instant" is default.
-    Another potential models is "meta-llama/llama-4-scout-17b-16e-instruct"
-    temp: The temperature for the model.
+    Args:
+           modelname (str): The name of the model to use. "llama-3.1-8b-instant" is default.  
+           Another potential models is "meta-llama/llama-4-scout-17b-16e-instruct"
+           temp (float): The temperature for the model.
     
-    OUTPUT: ChatGroq client
+    Returns:
+            ChatGroq client (obj)
     
     '''
     load_dotenv()
