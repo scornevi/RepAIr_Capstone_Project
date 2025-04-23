@@ -25,7 +25,7 @@ def chatbot_answer(user_query, memory=None, context="", prompt="default", respon
         temp (float): The temperature for the model.
 
     Returns:
-        str: The model's response.
+        chat_completion (str): The model's response.
     
     """
     # Initialize the LLM client
@@ -63,14 +63,15 @@ def chatbot_answer_init(user_query, vector_db, history, response_type, prompt, k
     Args:
         user_query (str): The user's query.
         vector_db: The vector database to query. Populated only after the iFixIt guides have been loaded.
-        history (list): The chat history.
+        history (list): The chat history. List of tuples.
         response_type (str): The style of language the answer should use.
         prompt (str): The prompt to load.
         k (int): The number of chunks to return from the vector database.
         modelname (str): The name of the model to use.
         temp (float): The temperature for the model.
         history_length (int): The number of messages to include from the chat history.
-    returns:
+
+    Returns:
         answer (list): The model's response added to the chat history.
     """
     # Check if the vector database is empty or None and populate context if vector_db is not None
@@ -92,7 +93,7 @@ def chatbot_rag_init(user_query):
     Args:
         user_query (str): The user's query.
     
-    returns:
+    Returns:
         vector_database: The vector database created from the iFixIt guides.
     """
     # Load the iFixIt guides and create the vector database
@@ -169,7 +170,7 @@ def handle_user_input(user_input_text, history, conversation_state, response_typ
 
     Args:
         user_input_text (str): The user's input text.
-        history (list): The chat history.
+        history (list): The chat history.  List of tuples.
         conversation_state (str): The current state of the conversation before the user input.
         response_type (str): The style of language the answer should use.
     
@@ -198,7 +199,7 @@ def feedback_positive(history):
     """ This function is called when the user clicks "thumbs up" to indicate that the repair was successful.
 
     Args:
-        history (list): The chat history.
+        history (list): The chat history.  List of tuples.
 
     Yields:
         answer (list): The model's response added to the chat history or an empty list to reset the chat
@@ -224,7 +225,7 @@ def feedback_negative(history):
     """ This function is called when the user clicks "thumbs down" to indicate that the repair was not successful.
 
     Args:
-        history (list): The chat history.
+        history (list): The chat history.  List of tuples.
 
     Yields:
         history: (list): The chat history with the thumbs down message appended.
@@ -243,9 +244,9 @@ def support_ticket_needed(message, history, conversation_state):
         and creates a support ticket if the user confirms.
 
     Args:
-        message (string): user input text
-        history (list): the chat history
-        conversation_state (string): conversation state before the user input
+        message (str): user input text
+        history (list): the chat history. List of tuples.
+        conversation_state (str): conversation state before the user input
 
     Yields:
         answer (list): The model's response added to the chat history or an empty list to reset the chat
