@@ -177,9 +177,6 @@ print("\nMatching strings:")
 print(matching_strings)
 
 
-
-
-
 # %%
 from rapidfuzz import fuzz
 
@@ -199,5 +196,3 @@ matching_rows = df_all_levels_clean[df_all_levels_clean.apply(row_has_similar_ce
 
 # Show result
 print(matching_rows)
-
-# %%
