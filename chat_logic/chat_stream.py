@@ -142,7 +142,7 @@ def handle_user_input(user_input_text, history, conversation_state, response_typ
     print("History before calling Chatbot Interface:", history)
 
     if conversation_state == "awaiting_support_confirmation":
-        yield from support_ticket_needed(user_input_text, history, conversation_state)
+        yield from support_ticket_needed(user_input_text, history, conversation_state, vector_db)
     else:
         answer, conversation_state, vector_db = chatbot_interface(history, user_input_text, response_type, conversation_state, vector_db)
         print("Answer before returning to Interface Design:", answer)
@@ -169,7 +169,7 @@ def feedback_negative(history):
     yield history, conversation_state
 
 # Support ticket creation
-def support_ticket_needed(message, history, conversation_state):
+def support_ticket_needed(message, history, conversation_state, vector_db):
     user_message = message.strip().lower()
     history.append((message, None))
     if conversation_state == "awaiting_support_confirmation":
@@ -183,15 +183,15 @@ def support_ticket_needed(message, history, conversation_state):
                                             )
             history.append((None, f"🛠️ Your support ticket has been created:\n\n{ticket_text[-1][1]}"))
             conversation_state = "repair_helper"
-            yield history, "", conversation_state
+            yield history, "", conversation_state, vector_db
         elif "no" in user_message:
             history.append((None, "👍 Ok, I would be happy to help with the next repair problem."))
-            yield history, "", conversation_state
+            yield history, "", conversation_state, vector_db
             time.sleep(5)
             history.clear()
             conversation_state = "interactive_diagnosis"
-            yield history, "", conversation_state
+            yield history, "", conversation_state, vector_db
         else:
             history.append((None, "❓ Please answer with yes or no."))
-            yield history, "", conversation_state
+            yield history, "", conversation_state, vector_db
 
