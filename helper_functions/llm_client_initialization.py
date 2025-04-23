@@ -7,9 +7,11 @@ def llm_base_client_init():
     """
     Initializes the LLM client from the groq package with personal API key
     
-    INPUT: no input needed
+    Args:
+          no input needed
     
-    Output: the Groq client
+    Returns:
+          the Groq client
     """
     load_dotenv()
     groq_key = os.getenv('GROQ_API_KEY')
