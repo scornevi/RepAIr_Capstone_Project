@@ -1,13 +1,13 @@
 def custom_css():
     """
-    Custom CSS for Gradio interface to style buttons, chat container, and background.
+    Custom CSS for Gradio interface to style chat container, buttons, logo, and background.
 
-    Returns:
-        str: Custom CSS styles.
+    Return:
+        str: Custom CSS styles embedded in HTML <style> tags.
     """
     custom_css = """
     <style>
-        /* Overall container for Gradio interface */
+        /* Main container for the entire Gradio interface */
         .gradio-container {
             background-color: #74BA9C !important;
             display: flex !important;
@@ -19,7 +19,7 @@ def custom_css():
             overflow: visible !important;
         }
 
-        /* Left container for logo, input, and buttons */
+        /* Left column: logo, response type radio buttons, feedback sections */
         .gradio-left-container {
             display: flex;
             flex-direction: column;
@@ -27,7 +27,7 @@ def custom_css():
             padding-right: 20px; /* Space between left and right sections */
         }
 
-        /* Right container for the chat output */
+        /* Right column: chatbot output and input area */
         .gradio-right-container {
             display: flex;
             flex-direction: column;
@@ -55,7 +55,7 @@ def custom_css():
 
         /* Submit button style */
         .submit-button {
-            background-color: #E69A8D !important; /* Coral Red */
+            background-color: #E69A8D !important;
             color: white !important;
             border: none;
             padding: 10px 20px;
@@ -70,7 +70,7 @@ def custom_css():
             background-color: #D17F73 !important;
         }
 
-        /* Feedback buttons layout */
+        /* Feedback buttons style */
         .feedback-buttons {
             display: flex;
             gap: 10px;
@@ -85,6 +85,7 @@ def custom_css():
             overflow-y: auto;
         }
 
+        /* Row layout consistency */
         .gradio-row {
             display: flex;
             justify-content: flex-start;
