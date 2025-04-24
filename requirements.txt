@@ -1,5 +1,10 @@
-matplotlib==3.7.1
-numpy==1.24.3
-pandas==2.0.1
-scikit-learn==1.2.2
-statsmodels==0.14.0
+faiss-cpu==1.10.0
+gradio==5.26.0
+ipykernel==6.29.5
+langchain-community==0.3.20
+langchain-groq==0.2.0
+langchain-huggingface==0.1.0
+langchain-openai==0.2.3
+langchainhub==0.1.21
+langchain-text-splitters==0.3.7
+python-dotenv==1.0.1

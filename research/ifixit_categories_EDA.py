@@ -1,9 +1,15 @@
-from dotenv import load_dotenv
+
+# 1) loading device categories from ifixit
+# 2) plotting device categories
+# 3) check if a device or similar device is in list
+
 import os
 import requests
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from rapidfuzz import fuzz # ( pip install if needed)
+from dotenv import load_dotenv
 
 # %% Loading dotenv and API key
 load_dotenv()
@@ -12,7 +18,8 @@ USER_AGENT = os.getenv("USER_AGENT")
 # %% Fetch Categories from iFixit API
 url = "https://www.ifixit.com/api/2.0/categories"
 headers = {"User-Agent": USER_AGENT}
-
+#####################
+#%%
 # Send the API request
 response = requests.get(url, headers=headers)
 
@@ -30,6 +37,12 @@ categories_list = []
 
 # Function to recursively extract categories, subcategories, intermediate levels, and models
 def extract_all_levels(categories, hierarchy_levels):
+    """ this function extracts all levels of categories
+
+    Args:
+        categories (list): empty list
+        hierarchy_levels (list): structure of categories
+    """
     if isinstance(categories, dict):
         for key, value in categories.items():
             # Add the current key (category, subcategory, intermediate level) to the hierarchy
@@ -40,6 +53,7 @@ def extract_all_levels(categories, hierarchy_levels):
             elif value is None:
                 # If value is None, this is the last level (model names)
                 categories_list.append(tuple(new_hierarchy))
+
 
 # Iterate through the top-level categories and start extracting all levels
 for category_name, subcategories in categories_json.items():
@@ -84,6 +98,7 @@ plt.title('# Device categories on ifixit.com')
 plt.xticks(rotation=90)
 plt.xlabel('')
 plt.ylabel('')
+
 
 #%%
 # Filter the DataFrame to include only rows where 'level1' is 'Phone'
@@ -152,11 +167,11 @@ ax2.tick_params(axis='x', rotation=90)
 # Adjust layout to avoid overlap
 plt.tight_layout()
 
-# %%
-from rapidfuzz import fuzz
 
+# %%
+# check if a device or similar device is in list
 target = "T8403c"
-threshold = 50
+threshold = 50 # percentage threshold: simiarity to search word ( set 100 for 1:1 search)
 
 # Flatten all values and convert to string
 all_strings = df_all_levels_clean.astype(str).values.flatten()
@@ -176,15 +191,11 @@ matching_strings = list(set(matching_strings))
 print("\nMatching strings:")
 print(matching_strings)
 
-
-
-
-
 # %%
-from rapidfuzz import fuzz
+# test another device
 
-target = "Gorenje AJW12R435"
-threshold = 60  # use 80 if you want to go back to stricter filtering
+target = "Bosch"
+threshold = 80  # use 80 if you want to go back to stricter filtering
 
 # Function to check if any cell in a row is similar to the target
 def row_has_similar_cell(row):
@@ -199,5 +210,3 @@ matching_rows = df_all_levels_clean[df_all_levels_clean.apply(row_has_similar_ce
 
 # Show result
 print(matching_rows)
-
-# %%
