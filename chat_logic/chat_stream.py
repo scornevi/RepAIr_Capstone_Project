@@ -74,8 +74,8 @@ def chatbot_answer_init(user_query, vector_db, history, response_type, prompt, k
     Returns:
         answer (list): The model's response added to the chat history.
     """
-    # Check if the vector database is empty or None and populate context if vector_db is not None
-    if vector_db:
+
+    if vector_db != []:
         context = query_vector_db(user_query, vector_db, k)
     else:
         context = ""
@@ -102,7 +102,7 @@ def chatbot_rag_init(user_query):
     vector_database = create_embedding_vector_db(chunks)
     return vector_database
 
-def chatbot_interface(history, user_query, response_type, conversation_state):
+def chatbot_interface(history, user_query, response_type, conversation_state, vector_db):
     """ 
 
     UI uses this function via handle input to handle general chat functionality.
@@ -121,8 +121,7 @@ def chatbot_interface(history, user_query, response_type, conversation_state):
     """
 
     if conversation_state == 'interactive_diagnosis':
-    #If in status interactive_diagnosis, get answer from chatbot and extract information from the answer
-        answer = chatbot_answer_init(user_query, None, history, response_type, prompt="diagnose_issue")
+        answer = chatbot_answer_init(user_query, vector_db, history, response_type, prompt="diagnose_issue")
         extracted_info = information_extractor(answer)
         # When extracting information, system sometimes populates the fields with invalid information (None, not specified, etc.)
         # even though no information was provided by the user. This is a workaround to check if the fields are empty or invalid
@@ -134,8 +133,6 @@ def chatbot_interface(history, user_query, response_type, conversation_state):
             ):
             conversation_state = "interactive_diagnosis"
         else:
-            # if the information is valid, create the vector database
-            global vector_db
             vector_db = [] # reset vector database to avoid memory issues
             vector_db = chatbot_rag_init(answer[-1][1])
             # Create the repair question based on the extracted information
@@ -161,9 +158,9 @@ def chatbot_interface(history, user_query, response_type, conversation_state):
                                     k=5)
     # load guides, create embeddings and return answer for first query
     print("Answer before returning to Handle User Input:", answer) # logs to show the answer before returning to the UI. Can be commented out if not needed.
-    return answer, conversation_state
+    return answer, conversation_state, vector_db
 
-def handle_user_input(user_input_text, history, conversation_state, response_type):
+def handle_user_input(user_input_text, history, conversation_state, response_type, vector_db):
     """
     Handle user input and determine the next steps based on the conversation state. This function is called by the UI to
     route the user input to the support ticket needed function if the user clicked "thumbs down", which sets the conversation state to "awaiting_support_confirmation".
@@ -173,11 +170,13 @@ def handle_user_input(user_input_text, history, conversation_state, response_typ
         history (list): The chat history.  List of tuples.
         conversation_state (str): The current state of the conversation before the user input.
         response_type (str): The style of language the answer should use.
+        vector_db (FAISS): Vector Database
     
     Yields:
         answer (list): The model's response added to the chat history.
         user_input (str): string to set the input box to empty after the user input is processed.
         conversation_state (str): The state of the conversation after the current user input.
+        vector_db (FAISS): Vector Database
 
     """
     print("Conversation state before calling Chatbot Interface:", conversation_state) # logs to show the conversation state before calling the chatbot interface. Can be commented out if not needed.
@@ -186,13 +185,14 @@ def handle_user_input(user_input_text, history, conversation_state, response_typ
     if conversation_state == "awaiting_support_confirmation":
         # If the user clicked "thumbs down", call the support ticket needed function to check whether the user wants to create a support ticket or not
         # based on the user input text.
-        yield from support_ticket_needed(user_input_text, history, conversation_state)
+        yield from support_ticket_needed(user_input_text, history, conversation_state, vector_db)
     else:
         # Default logic if the user clicked "Submit" or entered a message in the chat box and did not click "thumbs down" beforehand.
-        answer, conversation_state = chatbot_interface(history, user_input_text, response_type, conversation_state)
+        answer, conversation_state = chatbot_interface(history, user_input_text, response_type, conversation_state, vector_db)
         print("Answer before returning to Interface Design:", answer) # logs to show the answer before returning to the UI. Can be commented out if not needed.
         print("Conversation state before returning to Interface Design:", conversation_state) # logs to show the conversation state before returning to the UI. Can be commented out if not needed.
-        yield answer, "", conversation_state
+        yield answer, "", conversation_state, vector_db
+
 
 # Feedback function for thumbs up (chat ends with success message & restarts)
 def feedback_positive(history):
@@ -239,7 +239,7 @@ def feedback_negative(history):
     yield history, conversation_state
 
 # Support ticket creation
-def support_ticket_needed(message, history, conversation_state):
+def support_ticket_needed(message, history, conversation_state, vector_db):
     """ This function is called when the user clicks "thumbs down", checks whether the user wants to create a support ticket or not based on the user input text.
         and creates a support ticket if the user confirms.
 
@@ -247,11 +247,13 @@ def support_ticket_needed(message, history, conversation_state):
         message (str): user input text
         history (list): the chat history. List of tuples.
         conversation_state (str): conversation state before the user input
+        vector_db (FAISS): Vector Database
 
     Yields:
         answer (list): The model's response added to the chat history or an empty list to reset the chat
         user_input (str): string to set the input box to empty after the user input is processed.
         conversation_state (str): The state of the conversation after the current user input.
+        vector_db (FAISS): Vector Database
     """
     user_message = message.strip().lower()
     history.append((message, None))
@@ -260,7 +262,7 @@ def support_ticket_needed(message, history, conversation_state):
         if "yes" in user_message:
         # If the user confirms that they want to create a support ticket, call the chatbot_answer_init function to create the support ticket.
             ticket_text = chatbot_answer_init("Please summarize this history into a support ticket.",
-                                            vector_db,
+                                            [],
                                             history,
                                             response_type="Technical",
                                             prompt="support_ticket",
@@ -268,17 +270,17 @@ def support_ticket_needed(message, history, conversation_state):
                                             )
             history.append((None, f"🛠️ Your support ticket has been created:\n\n{ticket_text[-1][1]}"))
             conversation_state = "repair_helper"
-            yield history, "", conversation_state
+            yield history, "", conversation_state, vector_db
         elif "no" in user_message:
         # If the user does not want to create a support ticket, append a message to the chat history indicating that the chat is ready for a new diagnosis.
             history.append((None, "👍 Ok, I would be happy to help with the next repair problem."))
-            yield history, "", conversation_state
+            yield history, "", conversation_state, vector_db
             time.sleep(5)
             # Wait for a short time to allow the message to be displayed before clearing the chat history
             history.clear()
             conversation_state = "interactive_diagnosis"
-            yield history, "", conversation_state
+            yield history, "", conversation_state, vector_db
         else:
             history.append((None, "❓ Please answer with yes or no."))
-            yield history, "", conversation_state
+            yield history, "", conversation_state, vector_db
 

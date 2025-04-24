@@ -135,7 +135,3 @@ data/*.csv
 models/*.sav
 models/*
 
-# our personal play spaces
-playground/*
-!playground/.gitkeep
-

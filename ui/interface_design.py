@@ -42,8 +42,11 @@ def interface_init():
                 
             # Right column: chat output and user input
             with gr.Column(scale=2, elem_id="gradio-right-container"):
+              
                 # Conversation state to manage different dialog stages
                 conversation_state = gr.State("interactive_diagnosis")
+                # For storing the vectorDB independent for each user
+                vector_db = gr.State([]) 
 
                 # Display chatbot conversation
                 chatbot = gr.Chatbot(elem_id="chat-container")
@@ -62,14 +65,14 @@ def interface_init():
                 # Define interaction logic for the button and text submit
                 submit_btn.click(
                     fn=handle_user_input,
-                    inputs=[user_input, chatbot, conversation_state, response_type],
-                    outputs=[chatbot, user_input, conversation_state]
+                    inputs=[user_input, chatbot, conversation_state, response_type, vector_db],
+                    outputs=[chatbot, user_input, conversation_state, vector_db]
                 )
 
                 user_input.submit(
                     fn=handle_user_input,
-                    inputs=[user_input, chatbot, conversation_state, response_type],
-                    outputs=[chatbot, user_input, conversation_state]
+                    inputs=[user_input, chatbot, conversation_state, response_type, vector_db],
+                    outputs=[chatbot, user_input, conversation_state, vector_db]
                 )
 
         # Feedback logic: thumbs up resets conversation
