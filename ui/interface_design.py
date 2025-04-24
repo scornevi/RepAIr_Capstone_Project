@@ -38,7 +38,8 @@ def interface_init():
 
                 # chat_history = gr.State([])  # For maintaining the chat state
                 conversation_state = gr.State("interactive_diagnosis") # For awaiting the users response if support ticket is needed
-                vector_db = gr.State([]) # For awaiting the users response if support ticket is needed
+                vector_db = gr.State([]) # For storing the vectorDB independent for each user
+
                 chatbot = gr.Chatbot(elem_id="chat-container")
                 
                 # Input components
