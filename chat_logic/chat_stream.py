@@ -188,7 +188,7 @@ def handle_user_input(user_input_text, history, conversation_state, response_typ
         yield from support_ticket_needed(user_input_text, history, conversation_state, vector_db)
     else:
         # Default logic if the user clicked "Submit" or entered a message in the chat box and did not click "thumbs down" beforehand.
-        answer, conversation_state = chatbot_interface(history, user_input_text, response_type, conversation_state, vector_db)
+        answer, conversation_state, vector_db = chatbot_interface(history, user_input_text, response_type, conversation_state, vector_db)
         print("Answer before returning to Interface Design:", answer) # logs to show the answer before returning to the UI. Can be commented out if not needed.
         print("Conversation state before returning to Interface Design:", conversation_state) # logs to show the conversation state before returning to the UI. Can be commented out if not needed.
         yield answer, "", conversation_state, vector_db
